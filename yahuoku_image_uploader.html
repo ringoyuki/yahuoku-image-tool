@@ -695,6 +695,10 @@
   function addFiles(fileList) {
     for (const f of fileList) {
       if (!f.type.startsWith('image/')) continue;
+      if (files.length >= 7) {
+        alert('⚠️ ヤフオクの仕様上、外部画像は最大「7枚まで」です。\n7枚を超える画像は追加されません。');
+        break; // 7枚目以降はスキップ
+      }
       files.push({ file: f, objectUrl: URL.createObjectURL(f), uploadedUrl: null, status: 'wait' });
     }
     renderPreview();
@@ -831,25 +835,25 @@
         .replace(/\n/g, '<br>\n');
     }
 
-    // 画像タグ
+    // 画像タグ（スマホではみ出ないように max-width:100% と、縦並び確実な div 囲み）
     let imgHtml = '';
     if (urls.length > 0) {
       const imgTags = urls.map(url =>
-        `<img src="${url}" width="${width}" style="margin-bottom:${margin}px; display:block;">`
+        `<div style="${center ? 'text-align:center;' : ''} margin-bottom:${margin}px;"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
       );
-      imgHtml = center
-        ? '<div style="text-align:center;">\n' + imgTags.join('\n') + '\n</div>'
-        : imgTags.join('\n');
+      imgHtml = imgTags.join('\n');
     }
 
-    // RINGO YUKI リンク（上下固定）
-    const shopLink = `<a href="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE" style="color:blue; font-weight:bold; text-decoration:none;">→RINGO YUKI出品一覧←</a>`;
+    // RINGO YUKI リンク（上下固定、前後に空白行を確実に入れる）
+    const linkTag = `<a href="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE" style="color:blue; font-weight:bold; text-decoration:none;">→RINGO YUKI出品一覧←</a>`;
+    const shopLinkTop = linkTag + `<br><br>`;
+    const shopLinkBottom = `<br><br>\n` + linkTag;
 
     // 位置に応じて組み合わせ（上下にリンクを追加）
     const parts = position === 'top'
       ? [imgHtml, descHtml].filter(Boolean)   // 画像上・文章下
       : [descHtml, imgHtml].filter(Boolean);  // 文章上・画像下
-    htmlOutput.value = [shopLink, ...parts, shopLink].join('\n\n');
+    htmlOutput.value = shopLinkTop + '\n' + parts.join('\n<br><br>\n') + '\n' + shopLinkBottom;
 
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
