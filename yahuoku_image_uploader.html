@@ -842,11 +842,14 @@
         : imgTags.join('\n');
     }
 
-    // 位置に応じて組み合わせ
+    // RINGO YUKI リンク（上下固定）
+    const shopLink = `<a href="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE" style="color:blue; font-weight:bold; text-decoration:none;">→RINGO YUKI出品一覧←</a>`;
+
+    // 位置に応じて組み合わせ（上下にリンクを追加）
     const parts = position === 'top'
       ? [imgHtml, descHtml].filter(Boolean)   // 画像上・文章下
       : [descHtml, imgHtml].filter(Boolean);  // 文章上・画像下
-    htmlOutput.value = parts.join('\n\n');
+    htmlOutput.value = [shopLink, ...parts, shopLink].join('\n\n');
 
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
