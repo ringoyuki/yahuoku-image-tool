@@ -131,6 +131,109 @@
       font-size: 0.85rem;
       color: var(--muted);
     }
+
+    /* APIキー設定 */
+    .api-key-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 22px;
+      margin-bottom: 20px;
+    }
+    .api-key-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+    .api-key-header .title {
+      font-size: 0.85rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .api-key-header .arrow {
+      font-size: 0.75rem;
+      color: var(--muted);
+      transition: transform 0.2s;
+    }
+    .api-key-header .arrow.open { transform: rotate(180deg); }
+    .api-key-body {
+      display: none;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+    .api-key-body.show { display: block; }
+    .api-key-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .api-key-input {
+      flex: 1;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 8px 14px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.82rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .api-key-input:focus { border-color: var(--accent); }
+    .api-key-toggle {
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--muted);
+      padding: 8px 12px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .api-key-toggle:hover { border-color: var(--accent); color: var(--text); }
+    .api-key-save {
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .api-key-save:hover { opacity: 0.85; }
+    .api-key-section.no-key {
+      border-color: rgba(248,113,113,0.5);
+    }
+    .api-key-warn {
+      font-size: 0.8rem;
+      color: var(--red);
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .api-key-ok {
+      font-size: 0.8rem;
+      color: var(--green);
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .api-key-note {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .api-key-note a { color: var(--accent2); text-decoration: none; }
+    .api-key-note a:hover { text-decoration: underline; }
     /* トグルスイッチ */
     .toggle { position: relative; display: inline-block; width: 38px; height: 20px; }
     .toggle input { opacity: 0; width: 0; height: 0; }
@@ -431,6 +534,26 @@
     </div>
   </div>
 
+  <!-- APIキー設定 -->
+  <div class="api-key-section" id="apiKeySection">
+    <div class="api-key-header" id="apiKeyHeader">
+      <div class="title">🔑 imgbb APIキー設定 <span id="apiKeyStatus"></span></div>
+      <div class="arrow" id="apiKeyArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="apiKeyBody">
+      <div class="api-key-row">
+        <input type="password" class="api-key-input" id="apiKey"
+               placeholder="imgbb APIキーを入力して「保存」を押してください">
+        <button class="api-key-toggle" id="apiKeyToggle">👁 表示</button>
+        <button class="api-key-save" id="apiKeySave">✅ 保存</button>
+      </div>
+      <div class="api-key-note">
+        APIキーは <a href="https://api.imgbb.com/" target="_blank">api.imgbb.com</a> で取得できます。<br>
+        保存するとこのブラウザに記憶され、次回から自動で読み込まれます。
+      </div>
+    </div>
+  </div>
+
   <!-- ドロップゾーン -->
   <div id="dropzone">
     <div class="drop-icon">🗂️</div>
@@ -480,7 +603,7 @@
       <li>「通常入力」に戻すと画像がプレビューできます</li>
     </ol>
     <div class="note">
-      ※ 画像は Catbox.moe（無料・登録不要）に保存されます。削除したい場合は別途 catbox.moe にアクセスしてください。<br>
+      ※ 画像は imgbb.com に保存されます。<br>
       ※ ヤフオクのHTML説明欄に表示できる外部画像は最大7枚までの場合があります。
     </div>
   </div>
@@ -582,7 +705,7 @@
       progressLbl.textContent = `アップロード中… ${i + 1} / ${files.length} 枚目`;
 
       try {
-        item.uploadedUrl = await uploadToCatbox(item.file);
+        item.uploadedUrl = await uploadToImgbb(item.file);
         item.status = 'ok';
         done++;
       } catch(e) {
@@ -599,21 +722,35 @@
     uploadBtn.disabled = false;
   });
 
-  async function uploadToCatbox(file) {
-    const form = new FormData();
-    form.append('reqtype', 'fileupload');
-    form.append('userhash', '');
-    form.append('fileToUpload', file);
+  async function uploadToImgbb(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        try {
+          const base64 = reader.result.split(',')[1];
+          const form = new FormData();
+          const key = localStorage.getItem('imgbb_api_key') || '';
+          if (!key) { reject(new Error('APIキーが未設定です。ページ上の設定欄からAPIキーを保存してください')); return; }
+          form.append('key', key);
+          form.append('image', base64);
 
-    const res = await fetch('https://catbox.moe/user/api.php', {
-      method: 'POST',
-      body: form
+          const res = await fetch('https://api.imgbb.com/1/upload', {
+            method: 'POST',
+            body: form
+          });
+          const data = await res.json();
+          if (data.success) {
+            resolve(data.data.url);
+          } else {
+            reject(new Error(JSON.stringify(data.error)));
+          }
+        } catch(e) {
+          reject(e);
+        }
+      };
+      reader.onerror = () => reject(new Error('ファイル読み込み失敗'));
+      reader.readAsDataURL(file);
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const text = await res.text();
-    const url = text.trim();
-    if (!url.startsWith('https://')) throw new Error('Invalid response: ' + url);
-    return url;
   }
 
   function generateHTML() {
@@ -640,6 +777,65 @@
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  // APIキー：localStorageから読み込み
+  const STORAGE_KEY = 'imgbb_api_key';
+  const apiKeyInput = document.getElementById('apiKey');
+  const apiKeyStatus = document.getElementById('apiKeyStatus');
+  const apiKeySection = document.getElementById('apiKeySection');
+
+  function loadApiKey() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      apiKeyInput.value = saved;
+      apiKeyStatus.className = 'api-key-ok';
+      apiKeyStatus.textContent = '✓ 設定済';
+    } else {
+      apiKeyStatus.className = 'api-key-warn';
+      apiKeyStatus.textContent = '⚠️ 未設定（ここを開いてAPIキーを入力）';
+      // 未設定の場合は自動でパネルを開く
+      document.getElementById('apiKeyBody').classList.add('show');
+      document.getElementById('apiKeyArrow').classList.add('open');
+      apiKeySection.classList.add('no-key');
+    }
+  }
+  loadApiKey();
+
+  // 保存ボタン
+  document.getElementById('apiKeySave').addEventListener('click', () => {
+    const key = apiKeyInput.value.trim();
+    if (!key) { alert('APIキーを入力してください'); return; }
+    localStorage.setItem(STORAGE_KEY, key);
+    apiKeyStatus.className = 'api-key-ok';
+    apiKeyStatus.textContent = '✓ 保存しました！';
+    apiKeySection.classList.remove('no-key');
+    setTimeout(() => {
+      apiKeyStatus.textContent = '✓ 設定済';
+      document.getElementById('apiKeyBody').classList.remove('show');
+      document.getElementById('apiKeyArrow').classList.remove('open');
+    }, 1500);
+  });
+
+  // APIキー設定パネルの開閉
+  document.getElementById('apiKeyHeader').addEventListener('click', () => {
+    const body  = document.getElementById('apiKeyBody');
+    const arrow = document.getElementById('apiKeyArrow');
+    body.classList.toggle('show');
+    arrow.classList.toggle('open');
+  });
+
+  // APIキー表示切替
+  document.getElementById('apiKeyToggle').addEventListener('click', () => {
+    const input = document.getElementById('apiKey');
+    const btn   = document.getElementById('apiKeyToggle');
+    if (input.type === 'password') {
+      input.type = 'text';
+      btn.textContent = '🙈 隠す';
+    } else {
+      input.type = 'password';
+      btn.textContent = '👁 表示';
+    }
+  });
 
   // コピー
   copyBtn.addEventListener('click', () => {
