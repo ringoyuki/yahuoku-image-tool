@@ -482,6 +482,45 @@
       border-top: 1px solid var(--border);
       padding-top: 12px;
     }
+
+    /* 説明文入力 */
+    .desc-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .desc-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .desc-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 400;
+    }
+    .desc-textarea {
+      width: 100%;
+      min-height: 160px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 0.88rem;
+      line-height: 1.8;
+      padding: 14px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .desc-textarea:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>
@@ -532,6 +571,13 @@
         <span class="slider"></span>
       </label>
     </div>
+    <div class="label-group">
+      📸 画像の位置
+      <select id="imgPosition">
+        <option value="top" selected>上（画像 → 文章）</option>
+        <option value="bottom">下（文章 → 画像）</option>
+      </select>
+    </div>
   </div>
 
   <!-- APIキー設定 -->
@@ -551,6 +597,15 @@
         APIキーは <a href="https://api.imgbb.com/" target="_blank">api.imgbb.com</a> で取得できます。
       </div>
     </div>
+  </div>
+
+  <!-- 説明文入力 -->
+  <div class="desc-section">
+    <div class="desc-header">
+      <span>📝 商品説明文（プリマアシストの文章をここにコピペ）</span>
+      <span class="desc-note">空白のままでもOK（画像のみ生成されます）</span>
+    </div>
+    <textarea id="descText" class="desc-textarea" placeholder="プリマアシストの文章をここに貼り付けてください。&#10;空白のままにすると画像タグのみ生成されます。"></textarea>
   </div>
 
   <!-- ドロップゾーン -->
@@ -753,26 +808,46 @@
   }
 
   function generateHTML() {
-    const width  = document.getElementById('imgWidth').value;
-    const margin = document.getElementById('imgMargin').value;
-    const center = document.getElementById('centerAlign').checked;
+    const width    = document.getElementById('imgWidth').value;
+    const margin   = document.getElementById('imgMargin').value;
+    const center   = document.getElementById('centerAlign').checked;
+    const position = document.getElementById('imgPosition').value; // 'top' or 'bottom'
+    const descRaw  = document.getElementById('descText').value.trim();
 
     const urls = files.filter(f => f.status === 'ok').map(f => f.uploadedUrl);
-    if (urls.length === 0) {
-      htmlOutput.value = '⚠️ アップロードに成功した画像がありません。再試行してください。';
+    if (urls.length === 0 && !descRaw) {
+      htmlOutput.value = '⚠️ 画像がありません。再試行してください。';
       resultSec.style.display = 'block';
       return;
     }
 
-    const imgTags = urls.map(url =>
-      `<img src="${url}" width="${width}" style="margin-bottom:${margin}px; display:block;">`
-    );
+    // 説明文 → HTML変換
+    let descHtml = '';
+    if (descRaw) {
+      descHtml = descRaw
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br>\n');
+    }
 
-    const html = center
-      ? '<div style="text-align:center;">\n' + imgTags.join('\n') + '\n</div>'
-      : imgTags.join('\n');
+    // 画像タグ
+    let imgHtml = '';
+    if (urls.length > 0) {
+      const imgTags = urls.map(url =>
+        `<img src="${url}" width="${width}" style="margin-bottom:${margin}px; display:block;">`
+      );
+      imgHtml = center
+        ? '<div style="text-align:center;">\n' + imgTags.join('\n') + '\n</div>'
+        : imgTags.join('\n');
+    }
 
-    htmlOutput.value = html;
+    // 位置に応じて組み合わせ
+    const parts = position === 'top'
+      ? [imgHtml, descHtml].filter(Boolean)   // 画像上・文章下
+      : [descHtml, imgHtml].filter(Boolean);  // 文章上・画像下
+    htmlOutput.value = parts.join('\n\n');
+
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
