@@ -543,13 +543,12 @@
     <div class="api-key-body" id="apiKeyBody">
       <div class="api-key-row">
         <input type="password" class="api-key-input" id="apiKey"
-               placeholder="imgbb APIキーを入力して「保存」を押してください">
-        <button class="api-key-toggle" id="apiKeyToggle">👁 表示</button>
+               placeholder="変更する場合のみ新しいキーを入力して「保存」を押してください">
         <button class="api-key-save" id="apiKeySave">✅ 保存</button>
       </div>
       <div class="api-key-note">
-        APIキーは <a href="https://api.imgbb.com/" target="_blank">api.imgbb.com</a> で取得できます。<br>
-        保存するとこのブラウザに記憶され、次回から自動で読み込まれます。
+        キーは画面に表示されません。入力欄は常に空白です。<br>
+        APIキーは <a href="https://api.imgbb.com/" target="_blank">api.imgbb.com</a> で取得できます。
       </div>
     </div>
   </div>
@@ -787,13 +786,13 @@
   function loadApiKey() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      apiKeyInput.value = saved;
+      // 値は入力欄に入れない——末尾4桁のみ表示
+      const last4 = saved.slice(-4);
       apiKeyStatus.className = 'api-key-ok';
-      apiKeyStatus.textContent = '✓ 設定済';
+      apiKeyStatus.textContent = `✓ 設定済（末尾4桁: ●●●●${last4}）`;
     } else {
       apiKeyStatus.className = 'api-key-warn';
       apiKeyStatus.textContent = '⚠️ 未設定（ここを開いてAPIキーを入力）';
-      // 未設定の場合は自動でパネルを開く
       document.getElementById('apiKeyBody').classList.add('show');
       document.getElementById('apiKeyArrow').classList.add('open');
       apiKeySection.classList.add('no-key');
@@ -806,11 +805,13 @@
     const key = apiKeyInput.value.trim();
     if (!key) { alert('APIキーを入力してください'); return; }
     localStorage.setItem(STORAGE_KEY, key);
+    apiKeyInput.value = ''; // 保存後は即座に消去
+    const last4 = key.slice(-4);
     apiKeyStatus.className = 'api-key-ok';
-    apiKeyStatus.textContent = '✓ 保存しました！';
+    apiKeyStatus.textContent = `✓ 保存しました！（末尾4桁: ●●●●${last4}）`;
     apiKeySection.classList.remove('no-key');
     setTimeout(() => {
-      apiKeyStatus.textContent = '✓ 設定済';
+      apiKeyStatus.textContent = `✓ 設定済（末尾4桁: ●●●●${last4}）`;
       document.getElementById('apiKeyBody').classList.remove('show');
       document.getElementById('apiKeyArrow').classList.remove('open');
     }, 1500);
@@ -824,18 +825,7 @@
     arrow.classList.toggle('open');
   });
 
-  // APIキー表示切替
-  document.getElementById('apiKeyToggle').addEventListener('click', () => {
-    const input = document.getElementById('apiKey');
-    const btn   = document.getElementById('apiKeyToggle');
-    if (input.type === 'password') {
-      input.type = 'text';
-      btn.textContent = '🙈 隠す';
-    } else {
-      input.type = 'password';
-      btn.textContent = '👁 表示';
-    }
-  });
+  // APIキー表示切替ボタンは削除（キーは画面に表示しない）
 
   // コピー
   copyBtn.addEventListener('click', () => {
