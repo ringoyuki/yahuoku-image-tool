@@ -994,13 +994,13 @@
         .replace(/\n/g, '<br>\n');
     }
 
-    // 画像タグ（スマホではみ出ないように max-width:100% と、縦並び確実な div 囲み）
+    // 画像タグ（左から右へ横並びに表示。スマホ等では自動で折り返すようにする）
     let imgHtml = '';
     if (urls.length > 0) {
       const imgTags = urls.map(url =>
-        `<div style="${center ? 'text-align:center;' : ''} margin-bottom:${margin}px;"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
+        `<img src="${url}" width="${width}" style="max-width:100%; height:auto; margin: 0 ${margin}px ${margin}px 0; vertical-align: top;">`
       );
-      imgHtml = imgTags.join('\n');
+      imgHtml = `<div style="${center ? 'text-align:center;' : 'text-align:left;'}">\n${imgTags.join('\n')}\n</div>`;
     }
 
     // ショップリンク：localStorageから読み込み
