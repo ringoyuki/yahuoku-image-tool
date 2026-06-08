@@ -521,6 +521,21 @@
       transition: border-color 0.2s;
     }
     .desc-textarea:focus { border-color: var(--accent); }
+
+    /* 表示位置ボタン */
+    .pos-selector { display:flex; gap:6px; flex-wrap:wrap; }
+    .pos-btn {
+      flex:1; min-width:70px; padding:8px 10px;
+      background:var(--card2); border:1px solid var(--border);
+      border-radius:8px; color:var(--muted);
+      font-family:inherit; font-size:0.82rem;
+      cursor:pointer; transition:all 0.2s; text-align:center;
+    }
+    .pos-btn:hover { border-color:var(--accent); color:var(--text); }
+    .pos-btn.active {
+      background:var(--accent); border-color:var(--accent);
+      color:#fff; font-weight:700;
+    }
   </style>
 </head>
 <body>
@@ -538,9 +553,9 @@
 
   <!-- ステップ -->
   <div class="steps">
-    <div class="step"><div class="num">1</div><br>画像を<br>ドロップ</div>
-    <div class="step"><div class="num">2</div><br>ボタンを<br>クリック</div>
-    <div class="step"><div class="num">3</div><br>HTMLを<br>コピー</div>
+    <div class="step"><div class="num">1</div><br>商品説明を<br>入力</div>
+    <div class="step"><div class="num">2</div><br>画像を<br>ドロップ</div>
+    <div class="step"><div class="num">3</div><br>HTML<br>作成</div>
     <div class="step"><div class="num">4</div><br>ヤフオクに<br>貼り付け</div>
   </div>
 
@@ -599,25 +614,38 @@
     </div>
   </div>
 
-  <!-- 上下定型文設定 -->
+  <!-- ショップリンク設定 -->
   <div class="api-key-section" id="templateSection">
     <div class="api-key-header" id="templateHeader">
-      <div class="title">📌 上下定型文の設定 <span id="templateStatus"></span></div>
+      <div class="title">🔗 ショップリンクの設定 <span id="templateStatus"></span></div>
       <div class="arrow" id="templateArrow">▼</div>
     </div>
     <div class="api-key-body" id="templateBody">
-      <div class="api-key-note" style="margin-bottom:12px;">
-        商品説明の上下に自動挿入される内容を設定できます。<br>
-        ショップリンクやバナーなどHTMLタグも使えます。
+      <div class="api-key-note" style="margin-bottom:14px;">
+        出品一覧などへのリンクを商品説明の上・下・上下に自動挿入できます。
       </div>
-      <textarea id="templateInput" class="desc-textarea" style="min-height:80px;"
-        placeholder="例：<a href=&quot;https://...&quot; style=&quot;color:blue; font-weight:bold;&quot;>→店名出品一覧←</a>"></textarea>
-      <div style="display:flex; gap:8px; margin-top:10px;">
+
+      <div class="api-key-note" style="margin-bottom:6px;">📝 表示するリンク文字</div>
+      <input type="text" id="linkText" class="api-key-input" style="width:100%;"
+        placeholder="例：→RINGO YUKI出品一覧←">
+
+      <div class="api-key-note" style="margin:12px 0 6px;">🔗 リンク先URL</div>
+      <input type="text" id="linkUrl" class="api-key-input" style="width:100%;"
+        placeholder="https://auctions.yahoo.co.jp/seller/XXXX">
+
+      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示位置</div>
+      <div class="pos-selector" id="linkPosSelector">
+        <button class="pos-btn" data-pos="top">上のみ</button>
+        <button class="pos-btn active" data-pos="both">上下両方</button>
+        <button class="pos-btn" data-pos="bottom">下のみ</button>
+        <button class="pos-btn" data-pos="none">表示しない</button>
+      </div>
+
+      <div style="margin-top:14px;">
         <button class="api-key-save" id="templateSave">✅ 保存</button>
-        <button class="api-key-save" id="templateClear" style="background:var(--card2); border:1px solid var(--border); color:var(--muted);">🗑️ 内容を消去</button>
       </div>
       <div class="api-key-note" style="margin-top:12px;">
-        保存するとこのブラウザに記憶されます。空白のまま保存すると上下何も入りません。
+        保存するとこのブラウザに記憶されます。次回から自動で入ります。
       </div>
     </div>
   </div>
@@ -629,13 +657,6 @@
       <div class="arrow" id="bannerArrow">▼</div>
     </div>
     <div class="api-key-body" id="bannerBody">
-      <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
-        <span style="font-size:0.88rem; color:var(--text);">バナーを表示する</span>
-        <label class="toggle">
-          <input type="checkbox" id="bannerEnabled" checked>
-          <span class="slider"></span>
-        </label>
-      </div>
       <!-- バナープレビュー -->
       <div style="margin-bottom:14px;">
         <img id="bannerPreviewImg" src="https://s.yimg.jp/images/auct/front/banner.gif" alt="マイ・オークション" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
@@ -647,20 +668,28 @@
         <div style="font-size:0.78rem; color:var(--muted); margin-bottom:10px;">デスクトップのバナー画像ファイルを選択するだけでimgbbに自動保存します。</div>
         <div style="display:flex; gap:8px; align-items:center;">
           <input type="file" id="bannerFileInput" accept="image/*" style="display:none;">
-          <button class="api-key-save" id="bannerFixBtn" style="background:linear-gradient(135deg,var(--accent),var(--accent2));">📌 画像を選んで固定化する</button>
+          <button class="api-key-save" id="bannerFixBtn" style="background:linear-gradient(135deg,var(--accent),var(--accent2));">📌 画像を選んで固定化</button>
           <span id="bannerFixStatus" style="font-size:0.8rem; color:var(--muted);"></span>
         </div>
       </div>
 
-      <div class="api-key-note" style="margin-bottom:8px;">🔗 クリック時のリンク先URL</div>
+      <div class="api-key-note" style="margin-bottom:6px;">🔗 クリック時のリンク先URL</div>
       <input type="text" id="bannerLinkUrl" class="api-key-input" style="width:100%; font-size:0.8rem;"
-        placeholder="https://auctions.yahoo.co.jp/seller/XXXX"
-        value="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE">
-      <div style="margin-top:10px;">
+        placeholder="https://auctions.yahoo.co.jp/seller/XXXX">
+
+      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示位置（デフォルト：下のみ）</div>
+      <div class="pos-selector" id="bannerPosSelector">
+        <button class="pos-btn" data-pos="top">上のみ</button>
+        <button class="pos-btn" data-pos="both">上下両方</button>
+        <button class="pos-btn active" data-pos="bottom">下のみ</button>
+        <button class="pos-btn" data-pos="none">表示しない</button>
+      </div>
+
+      <div style="margin-top:14px;">
         <button class="api-key-save" id="bannerSave">✅ 保存</button>
       </div>
       <div class="api-key-note" style="margin-top:12px;">
-        HTMLの一番下にバナーを追加します。OFFにすると表示されません。
+        保存するとこのブラウザに記憶されます。
       </div>
     </div>
   </div>
@@ -668,10 +697,10 @@
   <!-- 説明文入力 -->
   <div class="desc-section">
     <div class="desc-header">
-      <span>📝 商品説明文（プリマアシストの文章をここにコピペ）</span>
+      <span>📝 商品説明文（フリマアシストの文章をここにコピペ）</span>
       <span class="desc-note">空白のままでもOK（画像のみ生成されます）</span>
     </div>
-    <textarea id="descText" class="desc-textarea" placeholder="プリマアシストの文章をここに貼り付けてください。&#10;空白のままにすると画像タグのみ生成されます。"></textarea>
+    <textarea id="descText" class="desc-textarea" placeholder="フリマアシストの文章をここに貼り付けてください。&#10;空白のままにすると画像タグのみ生成されます。"></textarea>
   </div>
 
   <!-- ドロップゾーン -->
@@ -910,25 +939,36 @@
       imgHtml = imgTags.join('\n');
     }
 
-    // 上下定型文：localStorageから読み込み
-    const templateHtml = localStorage.getItem('yahuoku_template') || '';
-    const shopLinkTop    = templateHtml ? templateHtml + '<br><br>' : '';
-    const shopLinkBottom = templateHtml ? '<br><br>\n' + templateHtml : '';
+    // ショップリンク：localStorageから読み込み
+    const linkText  = localStorage.getItem('yahuoku_link_text') || '';
+    const linkUrl   = localStorage.getItem('yahuoku_link_url')  || '';
+    const linkPos   = localStorage.getItem('yahuoku_link_position') || 'both';
+    let shopLinkHtml = '';
+    if (linkText && linkUrl && linkPos !== 'none') {
+      shopLinkHtml = `<a href="${linkUrl}" style="color:blue; font-weight:bold; text-decoration:none;">${linkText}</a>`;
+    }
+    const shopTop    = (shopLinkHtml && (linkPos === 'top'  || linkPos === 'both')) ? shopLinkHtml + '<br><br>' : '';
+    const shopBottom = (shopLinkHtml && (linkPos === 'bottom' || linkPos === 'both')) ? '<br><br>\n' + shopLinkHtml : '';
 
     // バナー：localStorageから読み込み
-    const bannerEnabled = localStorage.getItem('yahuoku_banner_enabled') !== 'false';
-    const bannerUrl     = localStorage.getItem('yahuoku_banner_link_url') || 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
-    const bannerImgUrl  = localStorage.getItem('yahuoku_banner_img_url') || 'https://s.yimg.jp/images/auct/front/banner.gif';
-    const bannerHtml    = bannerEnabled
-      ? `<br><br>\n<a href="${bannerUrl}" target="_blank"><img src="${bannerImgUrl}" alt="\u30de\u30a4\u30fb\u30aa\u30fc\u30af\u30b7\u30e7\u30f3\u3092\u3054\u3089\u3093\u304f\u3060\u3055\u3044" style="max-width:100%;"></a>`
-      : '';
+    const bannerPos    = localStorage.getItem('yahuoku_banner_position') || 'bottom';
+    const bannerUrl    = localStorage.getItem('yahuoku_banner_link_url') || 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+    const bannerImgUrl = localStorage.getItem('yahuoku_banner_img_url')  || 'https://s.yimg.jp/images/auct/front/banner.gif';
+    let bannerTag = '';
+    if (bannerPos !== 'none') {
+      bannerTag = `<a href="${bannerUrl}" target="_blank"><img src="${bannerImgUrl}" alt="\u30de\u30a4\u30fb\u30aa\u30fc\u30af\u30b7\u30e7\u30f3\u3092\u3054\u3089\u3093\u304f\u3060\u3055\u3044" style="max-width:100%;"></a>`;
+    }
+    const bannerTop    = (bannerTag && (bannerPos === 'top'  || bannerPos === 'both')) ? bannerTag + '<br><br>' : '';
+    const bannerBottom = (bannerTag && (bannerPos === 'bottom' || bannerPos === 'both')) ? '<br><br>\n' + bannerTag : '';
 
-    // 位置に応じて組み合わせ（上下に定型文を追加）
+    // 位置に応じて組み合わせ
     const parts = position === 'top'
       ? [imgHtml, descHtml].filter(Boolean)
       : [descHtml, imgHtml].filter(Boolean);
     const middle = parts.join('\n<br><br>\n');
-    htmlOutput.value = (shopLinkTop ? shopLinkTop + '\n' : '') + middle + (shopLinkBottom ? '\n' + shopLinkBottom : '') + bannerHtml;
+    const top    = [bannerTop, shopTop].filter(Boolean).join('\n');
+    const bottom = [shopBottom, bannerBottom].filter(Boolean).join('\n');
+    htmlOutput.value = (top ? top + '\n' : '') + middle + (bottom ? '\n' + bottom : '');
 
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -982,100 +1022,106 @@
     arrow.classList.toggle('open');
   });
 
-  // APIキー表示切替ボタンは削除（キーは画面に表示しない）
+  // ==============================================================
+  // ショップリンク設定：localStorage記憶
+  // ==============================================================
+  const LINK_TEXT_KEY = 'yahuoku_link_text';
+  const LINK_URL_KEY  = 'yahuoku_link_url';
+  const LINK_POS_KEY  = 'yahuoku_link_position';
+  const DEFAULT_LINK_TEXT = '→RINGO YUKI出品一覧←';
+  const DEFAULT_LINK_URL  = 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+  const DEFAULT_LINK_POS  = 'both';
 
-  // ============================================================
-  // 上下定型文：localStorage記憶
-  // ============================================================
-  const TEMPLATE_KEY = 'yahuoku_template';
-  const DEFAULT_TEMPLATE = '<a href="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE" style="color:blue; font-weight:bold; text-decoration:none;">→RINGO YUKI出品一覧←</a>';
-
-  const templateStatus = document.getElementById('templateStatus');
-  const templateInput  = document.getElementById('templateInput');
-
-  function loadTemplate() {
-    // 初回起動時（キー自体なし）こませまではデフォルト値をセット
-    if (localStorage.getItem(TEMPLATE_KEY) === null) {
-      localStorage.setItem(TEMPLATE_KEY, DEFAULT_TEMPLATE);
-    }
-    const saved = localStorage.getItem(TEMPLATE_KEY);
-    templateInput.value = saved;
-    updateTemplateStatus(saved);
+  function loadLinkSettings() {
+    if (localStorage.getItem(LINK_TEXT_KEY) === null) localStorage.setItem(LINK_TEXT_KEY, DEFAULT_LINK_TEXT);
+    if (localStorage.getItem(LINK_URL_KEY)  === null) localStorage.setItem(LINK_URL_KEY,  DEFAULT_LINK_URL);
+    if (localStorage.getItem(LINK_POS_KEY)  === null) localStorage.setItem(LINK_POS_KEY,  DEFAULT_LINK_POS);
+    document.getElementById('linkText').value = localStorage.getItem(LINK_TEXT_KEY);
+    document.getElementById('linkUrl').value  = localStorage.getItem(LINK_URL_KEY);
+    setActivePos('linkPosSelector', localStorage.getItem(LINK_POS_KEY));
+    updateLinkStatus();
   }
 
-  function updateTemplateStatus(val) {
-    if (val) {
-      templateStatus.className = 'api-key-ok';
-      templateStatus.textContent = '✓ 設定済';
+  function updateLinkStatus() {
+    const pos  = localStorage.getItem(LINK_POS_KEY)  || 'both';
+    const text = localStorage.getItem(LINK_TEXT_KEY) || '';
+    const url  = localStorage.getItem(LINK_URL_KEY)  || '';
+    const el   = document.getElementById('templateStatus');
+    if (pos === 'none' || !text || !url) {
+      el.className = 'api-key-warn'; el.textContent = '(なし)';
     } else {
-      templateStatus.className = 'api-key-warn';
-      templateStatus.textContent = '（なし）';
+      const label = {top:'上のみ', both:'上下', bottom:'下のみ'}[pos] || pos;
+      el.className = 'api-key-ok'; el.textContent = `✓ 設定済（${label}）`;
     }
   }
-  loadTemplate();
+  loadLinkSettings();
 
-  // 保存ボタン
   document.getElementById('templateSave').addEventListener('click', () => {
-    const val = templateInput.value;
-    localStorage.setItem(TEMPLATE_KEY, val);
-    updateTemplateStatus(val);
-    templateStatus.textContent = val ? '✓ 保存しました！' : '（なし）';
-    setTimeout(() => updateTemplateStatus(localStorage.getItem(TEMPLATE_KEY)), 1500);
+    const text = document.getElementById('linkText').value.trim();
+    const url  = document.getElementById('linkUrl').value.trim();
+    const pos  = document.querySelector('#linkPosSelector .pos-btn.active')?.dataset.pos || 'both';
+    localStorage.setItem(LINK_TEXT_KEY, text);
+    localStorage.setItem(LINK_URL_KEY,  url);
+    localStorage.setItem(LINK_POS_KEY,  pos);
+    updateLinkStatus();
     document.getElementById('templateBody').classList.remove('show');
     document.getElementById('templateArrow').classList.remove('open');
   });
 
-  // 消去ボタン
-  document.getElementById('templateClear').addEventListener('click', () => {
-    if (!confirm('上下定型文を消去しますか？（上下に何も入らなくなります）')) return;
-    localStorage.setItem(TEMPLATE_KEY, '');
-    templateInput.value = '';
-    updateTemplateStatus('');
-  });
-
-  // パネル開閉
   document.getElementById('templateHeader').addEventListener('click', () => {
     document.getElementById('templateBody').classList.toggle('show');
     document.getElementById('templateArrow').classList.toggle('open');
   });
 
-  // ============================================================
+  // ポジションボタン共通ユーティリティ
+  function setActivePos(selectorId, pos) {
+    document.querySelectorAll(`#${selectorId} .pos-btn`).forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.pos === pos);
+    });
+  }
+  document.querySelectorAll('#linkPosSelector .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActivePos('linkPosSelector', btn.dataset.pos));
+  });
+  document.querySelectorAll('#bannerPosSelector .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActivePos('bannerPosSelector', btn.dataset.pos));
+  });
+
+  // ==============================================================
   // バナー設定：localStorage記憶
-  // ============================================================
-  const BANNER_ENABLED_KEY = 'yahuoku_banner_enabled';
-  const BANNER_URL_KEY     = 'yahuoku_banner_link_url';
+  // ==============================================================
+  const BANNER_URL_KEY      = 'yahuoku_banner_link_url';
+  const BANNER_POS_KEY      = 'yahuoku_banner_position';
+  const BANNER_IMG_URL_KEY  = 'yahuoku_banner_img_url';
   const DEFAULT_BANNER_LINK = 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+  const DEFAULT_BANNER_POS  = 'bottom';
+  const DEFAULT_BANNER_IMG  = 'https://s.yimg.jp/images/auct/front/banner.gif';
 
   function loadBannerSettings() {
-    // 初回起動時：デフォルトON
-    if (localStorage.getItem(BANNER_ENABLED_KEY) === null) {
-      localStorage.setItem(BANNER_ENABLED_KEY, 'true');
-    }
-    const enabled = localStorage.getItem(BANNER_ENABLED_KEY) !== 'false';
-    const url     = localStorage.getItem(BANNER_URL_KEY) || DEFAULT_BANNER_LINK;
-    document.getElementById('bannerEnabled').checked  = enabled;
-    document.getElementById('bannerLinkUrl').value    = url;
-    updateBannerStatus(enabled);
+    if (localStorage.getItem(BANNER_URL_KEY) === null) localStorage.setItem(BANNER_URL_KEY, DEFAULT_BANNER_LINK);
+    if (localStorage.getItem(BANNER_POS_KEY) === null) localStorage.setItem(BANNER_POS_KEY, DEFAULT_BANNER_POS);
+    document.getElementById('bannerLinkUrl').value = localStorage.getItem(BANNER_URL_KEY);
+    setActivePos('bannerPosSelector', localStorage.getItem(BANNER_POS_KEY));
+    updateBannerStatus();
   }
 
-  function updateBannerStatus(enabled) {
-    const el = document.getElementById('bannerStatus');
-    if (enabled) {
-      el.className = 'api-key-ok';
-      el.textContent = '✓ ON';
+  function updateBannerStatus() {
+    const pos = localStorage.getItem(BANNER_POS_KEY) || 'bottom';
+    const el  = document.getElementById('bannerStatus');
+    if (pos === 'none') {
+      el.className = 'api-key-warn'; el.textContent = '(なし)';
     } else {
-      el.className = 'api-key-warn';
-      el.textContent = 'OFF';
+      const label = {top:'上のみ', both:'上下', bottom:'下のみ'}[pos] || pos;
+      el.className = 'api-key-ok'; el.textContent = `✓ ON（${label}）`;
     }
   }
   loadBannerSettings();
 
   document.getElementById('bannerSave').addEventListener('click', () => {
-    const enabled = document.getElementById('bannerEnabled').checked;
-    const url     = document.getElementById('bannerLinkUrl').value.trim() || DEFAULT_BANNER_LINK;
-    localStorage.setItem(BANNER_ENABLED_KEY, enabled ? 'true' : 'false');
+    const url = document.getElementById('bannerLinkUrl').value.trim() || DEFAULT_BANNER_LINK;
+    const pos = document.querySelector('#bannerPosSelector .pos-btn.active')?.dataset.pos || 'bottom';
     localStorage.setItem(BANNER_URL_KEY, url);
-    updateBannerStatus(enabled);
+    localStorage.setItem(BANNER_POS_KEY, pos);
+    updateBannerStatus();
     document.getElementById('bannerBody').classList.remove('show');
     document.getElementById('bannerArrow').classList.remove('open');
   });
