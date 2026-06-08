@@ -605,9 +605,9 @@
         <div class="label-group">
           ↕️ 画像の間隔
           <select id="imgMargin">
-            <option value="10">狭め（10px）</option>
-            <option value="24" selected>1行分（24px）</option>
-            <option value="48">2行分（48px）</option>
+            <option value="10" selected>標準（大きすぎずちょうどいい間隔）</option>
+            <option value="24">広め（1行分）</option>
+            <option value="48">とても広め（2行分）</option>
           </select>
         </div>
         <div class="toggle-wrap">
@@ -1014,9 +1014,9 @@
         `<div style="${center ? 'text-align:center;' : 'text-align:left;'}"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
       );
       // ヤフオク側でmarginが効かないことがあるため、物理的に<br>タグで空白行を作る
-      let space = '\n<br><br>\n'; // デフォルト（1行分）
-      if (margin == 10) space = '\n<br>\n'; // 狭め
-      else if (margin == 48) space = '\n<br><br><br>\n'; // 2行分
+      let space = '\n<br>\n'; // デフォルト：標準
+      if (margin == 24) space = '\n<br><br>\n'; // 広め
+      else if (margin == 48) space = '\n<br><br><br>\n'; // とても広め
       imgHtml = imgTags.join(space);
     }
 
