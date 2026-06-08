@@ -605,11 +605,8 @@
         <div class="label-group">
           ↕️ 画像の間隔
           <select id="imgMargin">
-            <option value="2">密着（2px）</option>
-            <option value="4">かなり狭め（4px）</option>
-            <option value="6">少し狭め（6px）</option>
-            <option value="8" selected>標準（8px）</option>
-            <option value="10">少し広め（10px）</option>
+            <option value="8" selected>標準</option>
+            <option value="br">1行あける</option>
           </select>
         </div>
         <div class="toggle-wrap">
@@ -1013,12 +1010,15 @@
     let imgHtml = '';
     if (urls.length > 0) {
       // 初期段階（時計の画像）で最も綺麗だった、imgタグに直接 margin-bottom と display:block を指定する方式
+      // 標準は8px、「1行あける」が選ばれた場合は margin-bottom を 0 にして <br> を挟む
+      const marginVal = margin === 'br' ? 0 : 8;
       const imgTags = urls.map(url =>
-        `<img src="${url}" width="${width}" style="max-width:100%; height:auto; margin-bottom:${margin}px; display:block;">`
+        `<img src="${url}" width="${width}" style="max-width:100%; height:auto; margin-bottom:${marginVal}px; display:block;">`
       );
+      const space = margin === 'br' ? '\n<br>\n' : '\n';
       imgHtml = center
-        ? '<div style="text-align:center;">\n' + imgTags.join('\n') + '\n</div>'
-        : imgTags.join('\n');
+        ? '<div style="text-align:center;">\n' + imgTags.join(space) + '\n</div>'
+        : imgTags.join(space);
     }
 
     // ショップリンク：localStorageから読み込み
