@@ -998,9 +998,13 @@
     let imgHtml = '';
     if (urls.length > 0) {
       const imgTags = urls.map(url =>
-        `<div style="${center ? 'text-align:center;' : 'text-align:left;'} margin-bottom:${margin}px;"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
+        `<div style="${center ? 'text-align:center;' : 'text-align:left;'}"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
       );
-      imgHtml = imgTags.join('\n');
+      // ヤフオク側でmarginが効かないことがあるため、物理的に<br>タグで空白行を作る
+      let space = '\n<br><br>\n'; // デフォルト（1行分）
+      if (margin == 10) space = '\n<br>\n'; // 狭め
+      else if (margin == 48) space = '\n<br><br><br>\n'; // 2行分
+      imgHtml = imgTags.join(space);
     }
 
     // ショップリンク：localStorageから読み込み
