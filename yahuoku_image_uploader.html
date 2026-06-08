@@ -605,10 +605,11 @@
         <div class="label-group">
           ↕️ 画像の間隔
           <select id="imgMargin">
-            <option value="2">密着（2px）</option>
-            <option value="4" selected>標準（4px）</option>
-            <option value="6">少し広め（6px）</option>
-            <option value="8">広め（8px）</option>
+            <option value="-3">超密着（-3px）</option>
+            <option value="-1">密着（-1px）</option>
+            <option value="1" selected>標準（1px）</option>
+            <option value="3">少し広め（3px）</option>
+            <option value="5">広め（5px）</option>
           </select>
         </div>
         <div class="toggle-wrap">
@@ -1011,12 +1012,11 @@
     // 画像タグ（パソコンでもスマホでも1枚ずつ縦に並べる）
     let imgHtml = '';
     if (urls.length > 0) {
+      // <br>を使わず、divのmargin-bottomで間隔を制御（マイナス値で密着させる）
       const imgTags = urls.map(url =>
-        `<div style="${center ? 'text-align:center;' : 'text-align:left;'}"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
+        `<div style="${center ? 'text-align:center;' : 'text-align:left;'} margin-bottom:${margin}px;"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
       );
-      // ヤフオク側でmarginが効かないことがあるため、物理的に<br>タグで空白行を作り、高さで間隔を微調整する
-      let space = `\n<br style="line-height:${margin}px;">\n`;
-      imgHtml = imgTags.join(space);
+      imgHtml = imgTags.join('\n');
     }
 
     // ショップリンク：localStorageから読み込み
