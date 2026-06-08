@@ -622,6 +622,49 @@
     </div>
   </div>
 
+  <!-- バナー設定 -->
+  <div class="api-key-section" id="bannerSection">
+    <div class="api-key-header" id="bannerHeader">
+      <div class="title">🎪 マイ・オークションバナー <span id="bannerStatus"></span></div>
+      <div class="arrow" id="bannerArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="bannerBody">
+      <div style="display:flex; align-items:center; gap:14px; margin-bottom:16px;">
+        <span style="font-size:0.88rem; color:var(--text);">バナーを表示する</span>
+        <label class="toggle">
+          <input type="checkbox" id="bannerEnabled" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <!-- バナープレビュー -->
+      <div style="margin-bottom:14px;">
+        <img id="bannerPreviewImg" src="https://s.yimg.jp/images/auct/front/banner.gif" alt="マイ・オークション" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
+      </div>
+
+      <!-- 固定化ボタン -->
+      <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px;">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--accent2); margin-bottom:8px;">📌 バナーを固定化（URL変更に影響されないようにimgbbに保存）</div>
+        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:10px;">デスクトップのバナー画像ファイルを選択するだけでimgbbに自動保存します。</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="file" id="bannerFileInput" accept="image/*" style="display:none;">
+          <button class="api-key-save" id="bannerFixBtn" style="background:linear-gradient(135deg,var(--accent),var(--accent2));">📌 画像を選んで固定化する</button>
+          <span id="bannerFixStatus" style="font-size:0.8rem; color:var(--muted);"></span>
+        </div>
+      </div>
+
+      <div class="api-key-note" style="margin-bottom:8px;">🔗 クリック時のリンク先URL</div>
+      <input type="text" id="bannerLinkUrl" class="api-key-input" style="width:100%; font-size:0.8rem;"
+        placeholder="https://auctions.yahoo.co.jp/seller/XXXX"
+        value="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE">
+      <div style="margin-top:10px;">
+        <button class="api-key-save" id="bannerSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        HTMLの一番下にバナーを追加します。OFFにすると表示されません。
+      </div>
+    </div>
+  </div>
+
   <!-- 説明文入力 -->
   <div class="desc-section">
     <div class="desc-header">
@@ -872,12 +915,20 @@
     const shopLinkTop    = templateHtml ? templateHtml + '<br><br>' : '';
     const shopLinkBottom = templateHtml ? '<br><br>\n' + templateHtml : '';
 
+    // バナー：localStorageから読み込み
+    const bannerEnabled = localStorage.getItem('yahuoku_banner_enabled') !== 'false';
+    const bannerUrl     = localStorage.getItem('yahuoku_banner_link_url') || 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+    const bannerImgUrl  = localStorage.getItem('yahuoku_banner_img_url') || 'https://s.yimg.jp/images/auct/front/banner.gif';
+    const bannerHtml    = bannerEnabled
+      ? `<br><br>\n<a href="${bannerUrl}" target="_blank"><img src="${bannerImgUrl}" alt="\u30de\u30a4\u30fb\u30aa\u30fc\u30af\u30b7\u30e7\u30f3\u3092\u3054\u3089\u3093\u304f\u3060\u3055\u3044" style="max-width:100%;"></a>`
+      : '';
+
     // 位置に応じて組み合わせ（上下に定型文を追加）
     const parts = position === 'top'
       ? [imgHtml, descHtml].filter(Boolean)
       : [descHtml, imgHtml].filter(Boolean);
     const middle = parts.join('\n<br><br>\n');
-    htmlOutput.value = (shopLinkTop ? shopLinkTop + '\n' : '') + middle + (shopLinkBottom ? '\n' + shopLinkBottom : '');
+    htmlOutput.value = (shopLinkTop ? shopLinkTop + '\n' : '') + middle + (shopLinkBottom ? '\n' + shopLinkBottom : '') + bannerHtml;
 
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -986,6 +1037,100 @@
   document.getElementById('templateHeader').addEventListener('click', () => {
     document.getElementById('templateBody').classList.toggle('show');
     document.getElementById('templateArrow').classList.toggle('open');
+  });
+
+  // ============================================================
+  // バナー設定：localStorage記憶
+  // ============================================================
+  const BANNER_ENABLED_KEY = 'yahuoku_banner_enabled';
+  const BANNER_URL_KEY     = 'yahuoku_banner_link_url';
+  const DEFAULT_BANNER_LINK = 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+
+  function loadBannerSettings() {
+    // 初回起動時：デフォルトON
+    if (localStorage.getItem(BANNER_ENABLED_KEY) === null) {
+      localStorage.setItem(BANNER_ENABLED_KEY, 'true');
+    }
+    const enabled = localStorage.getItem(BANNER_ENABLED_KEY) !== 'false';
+    const url     = localStorage.getItem(BANNER_URL_KEY) || DEFAULT_BANNER_LINK;
+    document.getElementById('bannerEnabled').checked  = enabled;
+    document.getElementById('bannerLinkUrl').value    = url;
+    updateBannerStatus(enabled);
+  }
+
+  function updateBannerStatus(enabled) {
+    const el = document.getElementById('bannerStatus');
+    if (enabled) {
+      el.className = 'api-key-ok';
+      el.textContent = '✓ ON';
+    } else {
+      el.className = 'api-key-warn';
+      el.textContent = 'OFF';
+    }
+  }
+  loadBannerSettings();
+
+  document.getElementById('bannerSave').addEventListener('click', () => {
+    const enabled = document.getElementById('bannerEnabled').checked;
+    const url     = document.getElementById('bannerLinkUrl').value.trim() || DEFAULT_BANNER_LINK;
+    localStorage.setItem(BANNER_ENABLED_KEY, enabled ? 'true' : 'false');
+    localStorage.setItem(BANNER_URL_KEY, url);
+    updateBannerStatus(enabled);
+    document.getElementById('bannerBody').classList.remove('show');
+    document.getElementById('bannerArrow').classList.remove('open');
+  });
+
+  document.getElementById('bannerHeader').addEventListener('click', () => {
+    document.getElementById('bannerBody').classList.toggle('show');
+    document.getElementById('bannerArrow').classList.toggle('open');
+  });
+
+  // バナー固定化：ファイル選択 → imgbbアップロード → URL保存
+  const BANNER_IMG_URL_KEY = 'yahuoku_banner_img_url';
+  const BANNER_DEFAULT_IMG = 'https://s.yimg.jp/images/auct/front/banner.gif';
+
+  document.getElementById('bannerFixBtn').addEventListener('click', () => {
+    document.getElementById('bannerFileInput').click();
+  });
+
+  document.getElementById('bannerFileInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const statusEl = document.getElementById('bannerFixStatus');
+    const apiKey = localStorage.getItem('imgbb_api_key');
+    if (!apiKey) {
+      statusEl.textContent = '⚠️ 先にAPIキーを設定してください';
+      return;
+    }
+    statusEl.textContent = '⚙️ アップロード中...';
+    try {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64 = reader.result.split(',')[1];
+        const form = new FormData();
+        form.append('image', base64);
+        form.append('name', 'yahoo_auction_banner');
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${apiKey}`, {
+          method: 'POST', body: form
+        });
+        const data = await res.json();
+        if (data.success) {
+          const fixedUrl = data.data.url;
+          localStorage.setItem(BANNER_IMG_URL_KEY, fixedUrl);
+          document.getElementById('bannerPreviewImg').src = fixedUrl;
+          statusEl.style.color = 'var(--green)';
+          statusEl.textContent = '✓ 固定化完了！永続URLを保存しました';
+        } else {
+          statusEl.style.color = 'var(--red)';
+          statusEl.textContent = '✖ 失敗：' + JSON.stringify(data.error);
+        }
+      };
+      reader.readAsDataURL(file);
+    } catch(err) {
+      statusEl.style.color = 'var(--red)';
+      statusEl.textContent = '✖ エラー: ' + err.message;
+    }
+    e.target.value = '';
   });
 
   // コピー
