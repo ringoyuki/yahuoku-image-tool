@@ -599,6 +599,29 @@
     </div>
   </div>
 
+  <!-- 上下定型文設定 -->
+  <div class="api-key-section" id="templateSection">
+    <div class="api-key-header" id="templateHeader">
+      <div class="title">📌 上下定型文の設定 <span id="templateStatus"></span></div>
+      <div class="arrow" id="templateArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="templateBody">
+      <div class="api-key-note" style="margin-bottom:12px;">
+        商品説明の上下に自動挿入される内容を設定できます。<br>
+        ショップリンクやバナーなどHTMLタグも使えます。
+      </div>
+      <textarea id="templateInput" class="desc-textarea" style="min-height:80px;"
+        placeholder="例：<a href=&quot;https://...&quot; style=&quot;color:blue; font-weight:bold;&quot;>→店名出品一覧←</a>"></textarea>
+      <div style="display:flex; gap:8px; margin-top:10px;">
+        <button class="api-key-save" id="templateSave">✅ 保存</button>
+        <button class="api-key-save" id="templateClear" style="background:var(--card2); border:1px solid var(--border); color:var(--muted);">🗑️ 内容を消去</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        保存するとこのブラウザに記憶されます。空白のまま保存すると上下何も入りません。
+      </div>
+    </div>
+  </div>
+
   <!-- 説明文入力 -->
   <div class="desc-section">
     <div class="desc-header">
@@ -844,16 +867,17 @@
       imgHtml = imgTags.join('\n');
     }
 
-    // RINGO YUKI リンク（上下固定、前後に空白行を確実に入れる）
-    const linkTag = `<a href="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE" style="color:blue; font-weight:bold; text-decoration:none;">→RINGO YUKI出品一覧←</a>`;
-    const shopLinkTop = linkTag + `<br><br>`;
-    const shopLinkBottom = `<br><br>\n` + linkTag;
+    // 上下定型文：localStorageから読み込み
+    const templateHtml = localStorage.getItem('yahuoku_template') || '';
+    const shopLinkTop    = templateHtml ? templateHtml + '<br><br>' : '';
+    const shopLinkBottom = templateHtml ? '<br><br>\n' + templateHtml : '';
 
-    // 位置に応じて組み合わせ（上下にリンクを追加）
+    // 位置に応じて組み合わせ（上下に定型文を追加）
     const parts = position === 'top'
-      ? [imgHtml, descHtml].filter(Boolean)   // 画像上・文章下
-      : [descHtml, imgHtml].filter(Boolean);  // 文章上・画像下
-    htmlOutput.value = shopLinkTop + '\n' + parts.join('\n<br><br>\n') + '\n' + shopLinkBottom;
+      ? [imgHtml, descHtml].filter(Boolean)
+      : [descHtml, imgHtml].filter(Boolean);
+    const middle = parts.join('\n<br><br>\n');
+    htmlOutput.value = (shopLinkTop ? shopLinkTop + '\n' : '') + middle + (shopLinkBottom ? '\n' + shopLinkBottom : '');
 
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -908,6 +932,61 @@
   });
 
   // APIキー表示切替ボタンは削除（キーは画面に表示しない）
+
+  // ============================================================
+  // 上下定型文：localStorage記憶
+  // ============================================================
+  const TEMPLATE_KEY = 'yahuoku_template';
+  const DEFAULT_TEMPLATE = '<a href="https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE" style="color:blue; font-weight:bold; text-decoration:none;">→RINGO YUKI出品一覧←</a>';
+
+  const templateStatus = document.getElementById('templateStatus');
+  const templateInput  = document.getElementById('templateInput');
+
+  function loadTemplate() {
+    // 初回起動時（キー自体なし）こませまではデフォルト値をセット
+    if (localStorage.getItem(TEMPLATE_KEY) === null) {
+      localStorage.setItem(TEMPLATE_KEY, DEFAULT_TEMPLATE);
+    }
+    const saved = localStorage.getItem(TEMPLATE_KEY);
+    templateInput.value = saved;
+    updateTemplateStatus(saved);
+  }
+
+  function updateTemplateStatus(val) {
+    if (val) {
+      templateStatus.className = 'api-key-ok';
+      templateStatus.textContent = '✓ 設定済';
+    } else {
+      templateStatus.className = 'api-key-warn';
+      templateStatus.textContent = '（なし）';
+    }
+  }
+  loadTemplate();
+
+  // 保存ボタン
+  document.getElementById('templateSave').addEventListener('click', () => {
+    const val = templateInput.value;
+    localStorage.setItem(TEMPLATE_KEY, val);
+    updateTemplateStatus(val);
+    templateStatus.textContent = val ? '✓ 保存しました！' : '（なし）';
+    setTimeout(() => updateTemplateStatus(localStorage.getItem(TEMPLATE_KEY)), 1500);
+    document.getElementById('templateBody').classList.remove('show');
+    document.getElementById('templateArrow').classList.remove('open');
+  });
+
+  // 消去ボタン
+  document.getElementById('templateClear').addEventListener('click', () => {
+    if (!confirm('上下定型文を消去しますか？（上下に何も入らなくなります）')) return;
+    localStorage.setItem(TEMPLATE_KEY, '');
+    templateInput.value = '';
+    updateTemplateStatus('');
+  });
+
+  // パネル開閉
+  document.getElementById('templateHeader').addEventListener('click', () => {
+    document.getElementById('templateBody').classList.toggle('show');
+    document.getElementById('templateArrow').classList.toggle('open');
+  });
 
   // コピー
   copyBtn.addEventListener('click', () => {
