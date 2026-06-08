@@ -1012,12 +1012,13 @@
     // 画像タグ（パソコンでもスマホでも1枚ずつ縦に並べる）
     let imgHtml = '';
     if (urls.length > 0) {
+      // 初期段階（時計の画像）で最も綺麗だった、imgタグに直接 margin-bottom と display:block を指定する方式
       const imgTags = urls.map(url =>
-        `<div style="${center ? 'text-align:center;' : 'text-align:left;'}"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
+        `<img src="${url}" width="${width}" style="max-width:100%; height:auto; margin-bottom:${margin}px; display:block;">`
       );
-      // <br>タグにline-heightを指定して間隔を微調整する
-      let space = `\n<br style="line-height:${margin}px;">\n`;
-      imgHtml = imgTags.join(space);
+      imgHtml = center
+        ? '<div style="text-align:center;">\n' + imgTags.join('\n') + '\n</div>'
+        : imgTags.join('\n');
     }
 
     // ショップリンク：localStorageから読み込み
