@@ -605,9 +605,10 @@
         <div class="label-group">
           ↕️ 画像の間隔
           <select id="imgMargin">
-            <option value="10" selected>標準（ほぼ密着・わずかな隙間）</option>
-            <option value="24">少し広め（1行分）</option>
-            <option value="48">広め（2行分）</option>
+            <option value="2">密着（2px）</option>
+            <option value="4" selected>標準（4px）</option>
+            <option value="6">少し広め（6px）</option>
+            <option value="8">広め（8px）</option>
           </select>
         </div>
         <div class="toggle-wrap">
@@ -1013,10 +1014,8 @@
       const imgTags = urls.map(url =>
         `<div style="${center ? 'text-align:center;' : 'text-align:left;'}"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
       );
-      // ヤフオク側でmarginが効かないことがあるため、物理的に<br>タグで空白行を作る
-      let space = '\n<br style="line-height:4px;">\n'; // デフォルト：標準（4pxのわずかな隙間）
-      if (margin == 24) space = '\n<br>\n'; // 少し広め
-      else if (margin == 48) space = '\n<br><br>\n'; // 広め
+      // ヤフオク側でmarginが効かないことがあるため、物理的に<br>タグで空白行を作り、高さで間隔を微調整する
+      let space = `\n<br style="line-height:${margin}px;">\n`;
       imgHtml = imgTags.join(space);
     }
 
