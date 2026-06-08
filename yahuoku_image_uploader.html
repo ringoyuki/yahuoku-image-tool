@@ -585,39 +585,53 @@
     <div class="step"><div class="num">4</div><br>ヤフオクに<br>貼り付け</div>
   </div>
 
-  <!-- 設定 -->
-  <div class="settings-panel">
-    <div class="label-group">
-      🖼️ 画像の横幅
-      <select id="imgWidth">
-        <option value="600">600px（標準）</option>
-        <option value="800">800px（大きめ）</option>
-        <option value="500">500px（少し小さめ）</option>
-        <option value="400">400px（小さめ）</option>
-        <option value="100%">100%（全幅）</option>
-      </select>
+  <!-- 基本レイアウト設定 -->
+  <div class="api-key-section" id="layoutSection">
+    <div class="api-key-header" id="layoutHeader">
+      <div class="title">⚙️ 基本レイアウト設定 <span id="layoutStatus"></span></div>
+      <div class="arrow" id="layoutArrow">▼</div>
     </div>
-    <div class="label-group">
-      ↕️ 画像の間隔
-      <select id="imgMargin">
-        <option value="10">狭め（10px）</option>
-        <option value="24" selected>1行分（24px）</option>
-        <option value="48">2行分（48px）</option>
-      </select>
-    </div>
-    <div class="toggle-wrap">
-      中央揃え
-      <label class="toggle">
-        <input type="checkbox" id="centerAlign">
-        <span class="slider"></span>
-      </label>
-    </div>
-    <div class="label-group">
-      📸 画像の位置
-      <select id="imgPosition">
-        <option value="top" selected>上（画像 → 文章）</option>
-        <option value="bottom">下（文章 → 画像）</option>
-      </select>
+    <div class="api-key-body" id="layoutBody">
+      <div class="settings-panel" style="padding:0; border:none; background:transparent;">
+        <div class="label-group">
+          🖼️ 画像の横幅
+          <select id="imgWidth">
+            <option value="600">600px（標準）</option>
+            <option value="800">800px（大きめ）</option>
+            <option value="500">500px（少し小さめ）</option>
+            <option value="400">400px（小さめ）</option>
+            <option value="100%">100%（全幅）</option>
+          </select>
+        </div>
+        <div class="label-group">
+          ↕️ 画像の間隔
+          <select id="imgMargin">
+            <option value="10">狭め（10px）</option>
+            <option value="24" selected>1行分（24px）</option>
+            <option value="48">2行分（48px）</option>
+          </select>
+        </div>
+        <div class="toggle-wrap">
+          中央揃え
+          <label class="toggle">
+            <input type="checkbox" id="centerAlign">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="label-group">
+          📸 画像の位置
+          <select id="imgPosition">
+            <option value="top" selected>上（画像 → 文章）</option>
+            <option value="bottom">下（文章 → 画像）</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-top:14px;">
+        <button class="api-key-save" id="layoutSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        保存するとこのブラウザに記憶されます。次回から自動で反映されます。
+      </div>
     </div>
   </div>
 
@@ -1139,6 +1153,49 @@
   document.getElementById('templateHeader').addEventListener('click', () => {
     document.getElementById('templateBody').classList.toggle('show');
     document.getElementById('templateArrow').classList.toggle('open');
+  });
+
+  // ==============================================================
+  // 基本レイアウト設定：localStorage記憶
+  // ==============================================================
+  const LAYOUT_WIDTH_KEY  = 'yahuoku_layout_width';
+  const LAYOUT_MARGIN_KEY = 'yahuoku_layout_margin';
+  const LAYOUT_CENTER_KEY = 'yahuoku_layout_center';
+  const LAYOUT_POS_KEY    = 'yahuoku_layout_pos';
+
+  function loadLayoutSettings() {
+    if (localStorage.getItem(LAYOUT_WIDTH_KEY))  document.getElementById('imgWidth').value    = localStorage.getItem(LAYOUT_WIDTH_KEY);
+    if (localStorage.getItem(LAYOUT_MARGIN_KEY)) document.getElementById('imgMargin').value   = localStorage.getItem(LAYOUT_MARGIN_KEY);
+    if (localStorage.getItem(LAYOUT_CENTER_KEY)) document.getElementById('centerAlign').checked = localStorage.getItem(LAYOUT_CENTER_KEY) === 'true';
+    if (localStorage.getItem(LAYOUT_POS_KEY))    document.getElementById('imgPosition').value = localStorage.getItem(LAYOUT_POS_KEY);
+    updateLayoutStatus();
+  }
+
+  function updateLayoutStatus() {
+    const el = document.getElementById('layoutStatus');
+    if (localStorage.getItem(LAYOUT_WIDTH_KEY)) {
+      el.className = 'api-key-ok';
+      el.textContent = '✓ 設定済';
+    } else {
+      el.className = 'api-key-warn';
+      el.textContent = '(デフォルト)';
+    }
+  }
+  loadLayoutSettings();
+
+  document.getElementById('layoutSave').addEventListener('click', () => {
+    localStorage.setItem(LAYOUT_WIDTH_KEY,  document.getElementById('imgWidth').value);
+    localStorage.setItem(LAYOUT_MARGIN_KEY, document.getElementById('imgMargin').value);
+    localStorage.setItem(LAYOUT_CENTER_KEY, document.getElementById('centerAlign').checked);
+    localStorage.setItem(LAYOUT_POS_KEY,    document.getElementById('imgPosition').value);
+    updateLayoutStatus();
+    document.getElementById('layoutBody').classList.remove('show');
+    document.getElementById('layoutArrow').classList.remove('open');
+  });
+
+  document.getElementById('layoutHeader').addEventListener('click', () => {
+    document.getElementById('layoutBody').classList.toggle('show');
+    document.getElementById('layoutArrow').classList.toggle('open');
   });
 
   // ポジションボタン共通ユーティリティ
