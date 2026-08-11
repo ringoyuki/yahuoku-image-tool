@@ -732,6 +732,35 @@
     </div>
   </div>
 
+  <!-- Jauceバナー設定 -->
+  <div class="api-key-section" id="jauceSection">
+    <div class="api-key-header" id="jauceHeader">
+      <div class="title">🌍 Jauceバナー <span id="jauceStatus"></span></div>
+      <div class="arrow" id="jauceArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="jauceBody">
+      <div style="margin-bottom:14px;">
+        <img src="http://www.jauce.jp/banner/img/banner_large.png" alt="Jauce" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
+      </div>
+      <div class="api-key-note" style="margin-bottom:10px;">
+        海外バイヤー向けのJauceバナーを商品説明の一番下に自動挿入します。
+      </div>
+
+      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示</div>
+      <div class="pos-selector" id="jaucePosSelector">
+        <button class="pos-btn active" data-pos="bottom">ON（下に表示）</button>
+        <button class="pos-btn" data-pos="none">OFF</button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <button class="api-key-save" id="jauceSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        保存するとこのブラウザに記憶されます。
+      </div>
+    </div>
+  </div>
+
   <!-- 説明文入力 -->
   <div class="desc-section">
     <div class="desc-header">
@@ -1013,8 +1042,8 @@
       // style属性（marginやdisplay等）には一切依存せず、許可された基本タグと属性のみで構成する
       const imgTags = urls.map(url =>
         center 
-          ? `<div align="center"><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
-          : `<div><img src="${url}" width="${width}" style="max-width:100%; height:auto;"></div>`
+          ? `<div align="center"><img src="${url}" width="${width}"></div>`
+          : `<div><img src="${url}" width="${width}"></div>`
       );
       // 標準はdivによる自然な隙間（数px）、1行あける場合はbrを追加
       const space = margin === 'br' ? '\n<br>\n' : '\n';
@@ -1043,13 +1072,23 @@
     const bannerTop    = (bannerTag && (bannerPos === 'top'  || bannerPos === 'both')) ? bannerTag + '<br><br>' : '';
     const bannerBottom = (bannerTag && (bannerPos === 'bottom' || bannerPos === 'both')) ? '<br><br>\n' + bannerTag : '';
 
+    // Jauceバナー：localStorageから読み込み
+    const jaucePos = localStorage.getItem('yahuoku_jauce_position') || 'bottom';
+    const jauceSellerUrl = 'https://www.Jauce.com/user/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+    let jauceHtml = '';
+    if (jaucePos !== 'none') {
+      jauceHtml = '<br><br>\n' +
+        `<div align="center"><a href="${jauceSellerUrl}" target="_blank"><img src="http://www.jauce.jp/banner/img/banner_large.png" width="640" alt="ヤフオクを世界へ Japan Auctions to the World"></a><br>` +
+        '<a href="http://www.jauce.jp/banner/" target="_blank"><font size="3" color="#46a1ec">ヤフオクを世界へ - Japan Auctions to the World</font></a></div>';
+    }
+
     // 位置に応じて組み合わせ
     const parts = position === 'top'
       ? [imgHtml, descHtml].filter(Boolean)
       : [descHtml, imgHtml].filter(Boolean);
     const middle = parts.join('\n<br><br>\n');
     const top    = [bannerTop, shopTop].filter(Boolean).join('\n');
-    const bottom = [shopBottom, bannerBottom].filter(Boolean).join('\n');
+    const bottom = [shopBottom, bannerBottom].filter(Boolean).join('\n') + jauceHtml;
     htmlOutput.value = (top ? top + '\n' : '') + middle + (bottom ? '\n' + bottom : '');
 
     resultSec.style.display = 'block';
@@ -1210,6 +1249,9 @@
   document.querySelectorAll('#bannerPosSelector .pos-btn').forEach(btn => {
     btn.addEventListener('click', () => setActivePos('bannerPosSelector', btn.dataset.pos));
   });
+  document.querySelectorAll('#jaucePosSelector .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActivePos('jaucePosSelector', btn.dataset.pos));
+  });
 
   // ==============================================================
   // バナー設定：localStorage記憶
@@ -1300,6 +1342,42 @@
       statusEl.textContent = '✖ エラー: ' + err.message;
     }
     e.target.value = '';
+  });
+
+  // ==============================================================
+  // Jauceバナー設定：localStorage記憶
+  // ==============================================================
+  const JAUCE_POS_KEY = 'yahuoku_jauce_position';
+  const DEFAULT_JAUCE_POS = 'bottom';
+
+  function loadJauceSettings() {
+    if (localStorage.getItem(JAUCE_POS_KEY) === null) localStorage.setItem(JAUCE_POS_KEY, DEFAULT_JAUCE_POS);
+    setActivePos('jaucePosSelector', localStorage.getItem(JAUCE_POS_KEY));
+    updateJauceStatus();
+  }
+
+  function updateJauceStatus() {
+    const pos = localStorage.getItem(JAUCE_POS_KEY) || 'bottom';
+    const el  = document.getElementById('jauceStatus');
+    if (pos === 'none') {
+      el.className = 'api-key-warn'; el.textContent = '(OFF)';
+    } else {
+      el.className = 'api-key-ok'; el.textContent = '✓ ON（下に表示）';
+    }
+  }
+  loadJauceSettings();
+
+  document.getElementById('jauceSave').addEventListener('click', () => {
+    const pos = document.querySelector('#jaucePosSelector .pos-btn.active')?.dataset.pos || 'bottom';
+    localStorage.setItem(JAUCE_POS_KEY, pos);
+    updateJauceStatus();
+    document.getElementById('jauceBody').classList.remove('show');
+    document.getElementById('jauceArrow').classList.remove('open');
+  });
+
+  document.getElementById('jauceHeader').addEventListener('click', () => {
+    document.getElementById('jauceBody').classList.toggle('show');
+    document.getElementById('jauceArrow').classList.toggle('open');
   });
 
   // コピー
