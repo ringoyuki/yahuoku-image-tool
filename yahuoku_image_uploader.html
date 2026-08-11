@@ -761,6 +761,35 @@
     </div>
   </div>
 
+  <!-- Zenmarketバナー設定 -->
+  <div class="api-key-section" id="zenSection">
+    <div class="api-key-header" id="zenHeader">
+      <div class="title">📦 Zenmarketバナー <span id="zenStatus"></span></div>
+      <div class="arrow" id="zenArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="zenBody">
+      <div style="margin-bottom:14px;">
+        <img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" alt="Zenmarket" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
+      </div>
+      <div class="api-key-note" style="margin-bottom:10px;">
+        海外バイヤー向けのZenmarketバナーを商品説明の一番下に自動挿入します。
+      </div>
+
+      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示</div>
+      <div class="pos-selector" id="zenPosSelector">
+        <button class="pos-btn active" data-pos="bottom">ON（下に表示）</button>
+        <button class="pos-btn" data-pos="none">OFF</button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <button class="api-key-save" id="zenSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        保存するとこのブラウザに記憶されます。
+      </div>
+    </div>
+  </div>
+
   <!-- 説明文入力 -->
   <div class="desc-section">
     <div class="desc-header">
@@ -1089,7 +1118,21 @@
     const middle = parts.join('\n<br><br>\n');
     const top    = [bannerTop, shopTop].filter(Boolean).join('\n');
     const bottom = [shopBottom, bannerBottom].filter(Boolean).join('\n') + jauceHtml;
-    htmlOutput.value = (top ? top + '\n' : '') + middle + (bottom ? '\n' + bottom : '');
+
+    // Zenmarketバナー：localStorageから読み込み
+    const zenPos = localStorage.getItem('yahuoku_zen_position') || 'bottom';
+    let zenHtml = '';
+    if (zenPos !== 'none') {
+      zenHtml = '<br><br>\n' +
+        '<div align="center">' +
+        '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
+        '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" alt="Buying proxy service. Buy from Japan with Zenmarket.Jp!"></a><br>' +
+        '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp - buying service from Japanese online stores</a> recommended by seller</font>' +
+        '</div>';
+    }
+
+    const finalBottom = bottom + zenHtml;
+    htmlOutput.value = (top ? top + '\n' : '') + middle + (finalBottom ? '\n' + finalBottom : '');
 
     resultSec.style.display = 'block';
     resultSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -1252,6 +1295,9 @@
   document.querySelectorAll('#jaucePosSelector .pos-btn').forEach(btn => {
     btn.addEventListener('click', () => setActivePos('jaucePosSelector', btn.dataset.pos));
   });
+  document.querySelectorAll('#zenPosSelector .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActivePos('zenPosSelector', btn.dataset.pos));
+  });
 
   // ==============================================================
   // バナー設定：localStorage記憶
@@ -1378,6 +1424,42 @@
   document.getElementById('jauceHeader').addEventListener('click', () => {
     document.getElementById('jauceBody').classList.toggle('show');
     document.getElementById('jauceArrow').classList.toggle('open');
+  });
+
+  // ==============================================================
+  // Zenmarketバナー設定：localStorage記憶
+  // ==============================================================
+  const ZEN_POS_KEY = 'yahuoku_zen_position';
+  const DEFAULT_ZEN_POS = 'bottom';
+
+  function loadZenSettings() {
+    if (localStorage.getItem(ZEN_POS_KEY) === null) localStorage.setItem(ZEN_POS_KEY, DEFAULT_ZEN_POS);
+    setActivePos('zenPosSelector', localStorage.getItem(ZEN_POS_KEY));
+    updateZenStatus();
+  }
+
+  function updateZenStatus() {
+    const pos = localStorage.getItem(ZEN_POS_KEY) || 'bottom';
+    const el  = document.getElementById('zenStatus');
+    if (pos === 'none') {
+      el.className = 'api-key-warn'; el.textContent = '(OFF)';
+    } else {
+      el.className = 'api-key-ok'; el.textContent = '✓ ON（下に表示）';
+    }
+  }
+  loadZenSettings();
+
+  document.getElementById('zenSave').addEventListener('click', () => {
+    const pos = document.querySelector('#zenPosSelector .pos-btn.active')?.dataset.pos || 'bottom';
+    localStorage.setItem(ZEN_POS_KEY, pos);
+    updateZenStatus();
+    document.getElementById('zenBody').classList.remove('show');
+    document.getElementById('zenArrow').classList.remove('open');
+  });
+
+  document.getElementById('zenHeader').addEventListener('click', () => {
+    document.getElementById('zenBody').classList.toggle('show');
+    document.getElementById('zenArrow').classList.toggle('open');
   });
 
   // コピー
