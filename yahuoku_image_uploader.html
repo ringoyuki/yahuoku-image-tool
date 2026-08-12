@@ -1109,9 +1109,11 @@
     const zenOn   = zenPos !== 'none';
 
     let proxyBannerHtml = '';
+    // 海外バナーの共通ヘッダー（区切り線＋案内テキスト）
+    const proxyHeader = '<br><br>\n<hr width="500" align="left">\n<font size="2"><b>▼ For International Customers ▼</b></font><br><br>\n';
     if (jauceOn && zenOn) {
       // 両方ON → 横並び（テーブル）
-      proxyBannerHtml = '<br><br>\n' +
+      proxyBannerHtml = proxyHeader +
         '<table><tr valign="top">' +
         '<td>' +
         `<a href="${jauceSellerUrl}" target="_blank"><img src="http://www.jauce.jp/banner/img/banner_large.png" width="300" alt="ヤフオクを世界へ Japan Auctions to the World"></a><br>` +
@@ -1126,12 +1128,12 @@
         '</tr></table>';
     } else if (jauceOn) {
       // Jauceだけ
-      proxyBannerHtml = '<br><br>\n' +
+      proxyBannerHtml = proxyHeader +
         `<a href="${jauceSellerUrl}" target="_blank"><img src="http://www.jauce.jp/banner/img/banner_large.png" width="400" alt="ヤフオクを世界へ Japan Auctions to the World"></a><br>` +
         '<font size="2"><a href="http://www.jauce.jp/banner/" target="_blank"><font color="#46a1ec">ヤフオクを世界へ - Japan Auctions to the World</font></a></font>';
     } else if (zenOn) {
       // Zenmarketだけ
-      proxyBannerHtml = '<br><br>\n' +
+      proxyBannerHtml = proxyHeader +
         '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
         '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" width="250" alt="Buy from Japan with Zenmarket.Jp!"></a><br>' +
         '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp - buying service from Japanese online stores</a> recommended by seller</font>';
