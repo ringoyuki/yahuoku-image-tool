@@ -1101,14 +1101,40 @@
     const bannerTop    = (bannerTag && (bannerPos === 'top'  || bannerPos === 'both')) ? bannerTag + '<br><br>' : '';
     const bannerBottom = (bannerTag && (bannerPos === 'bottom' || bannerPos === 'both')) ? '<br><br>\n' + bannerTag : '';
 
-    // Jauceバナー：localStorageから読み込み
+    // Jauce & Zenmarketバナー：横一列に並べる（テーブル使用）
     const jaucePos = localStorage.getItem('yahuoku_jauce_position') || 'bottom';
+    const zenPos = localStorage.getItem('yahuoku_zen_position') || 'bottom';
     const jauceSellerUrl = 'https://www.Jauce.com/user/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
-    let jauceHtml = '';
-    if (jaucePos !== 'none') {
-      jauceHtml = '<br><br>\n' +
-        `<div align="center"><a href="${jauceSellerUrl}" target="_blank"><img src="http://www.jauce.jp/banner/img/banner_large.png" width="640" alt="ヤフオクを世界へ Japan Auctions to the World"></a><br>` +
-        '<a href="http://www.jauce.jp/banner/" target="_blank"><font size="3" color="#46a1ec">ヤフオクを世界へ - Japan Auctions to the World</font></a></div>';
+    const jauceOn = jaucePos !== 'none';
+    const zenOn   = zenPos !== 'none';
+
+    let proxyBannerHtml = '';
+    if (jauceOn && zenOn) {
+      // 両方ON → 横並び（テーブル）
+      proxyBannerHtml = '<br><br>\n' +
+        '<table><tr valign="top">' +
+        '<td>' +
+        `<a href="${jauceSellerUrl}" target="_blank"><img src="http://www.jauce.jp/banner/img/banner_large.png" width="300" alt="ヤフオクを世界へ Japan Auctions to the World"></a><br>` +
+        '<font size="2"><a href="http://www.jauce.jp/banner/" target="_blank" color="#46a1ec">ヤフオクを世界へ</a></font>' +
+        '</td>' +
+        '<td>&nbsp;&nbsp;</td>' +
+        '<td>' +
+        '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
+        '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" width="200" alt="Buy from Japan with Zenmarket.Jp!"></a><br>' +
+        '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp</a></font>' +
+        '</td>' +
+        '</tr></table>';
+    } else if (jauceOn) {
+      // Jauceだけ
+      proxyBannerHtml = '<br><br>\n' +
+        `<a href="${jauceSellerUrl}" target="_blank"><img src="http://www.jauce.jp/banner/img/banner_large.png" width="400" alt="ヤフオクを世界へ Japan Auctions to the World"></a><br>` +
+        '<font size="2"><a href="http://www.jauce.jp/banner/" target="_blank"><font color="#46a1ec">ヤフオクを世界へ - Japan Auctions to the World</font></a></font>';
+    } else if (zenOn) {
+      // Zenmarketだけ
+      proxyBannerHtml = '<br><br>\n' +
+        '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
+        '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" width="250" alt="Buy from Japan with Zenmarket.Jp!"></a><br>' +
+        '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp - buying service from Japanese online stores</a> recommended by seller</font>';
     }
 
     // 位置に応じて組み合わせ
@@ -1117,21 +1143,9 @@
       : [descHtml, imgHtml].filter(Boolean);
     const middle = parts.join('\n<br><br>\n');
     const top    = [bannerTop, shopTop].filter(Boolean).join('\n');
-    const bottom = [shopBottom, bannerBottom].filter(Boolean).join('\n') + jauceHtml;
+    const bottom = [shopBottom, bannerBottom].filter(Boolean).join('\n') + proxyBannerHtml;
 
-    // Zenmarketバナー：localStorageから読み込み
-    const zenPos = localStorage.getItem('yahuoku_zen_position') || 'bottom';
-    let zenHtml = '';
-    if (zenPos !== 'none') {
-      zenHtml = '<br><br>\n' +
-        '<div align="center">' +
-        '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
-        '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" alt="Buying proxy service. Buy from Japan with Zenmarket.Jp!"></a><br>' +
-        '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp - buying service from Japanese online stores</a> recommended by seller</font>' +
-        '</div>';
-    }
-
-    const finalBottom = bottom + zenHtml;
+    const finalBottom = bottom;
     htmlOutput.value = (top ? top + '\n' : '') + middle + (finalBottom ? '\n' + finalBottom : '');
 
     resultSec.style.display = 'block';
