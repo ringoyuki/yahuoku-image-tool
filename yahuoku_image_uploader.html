@@ -584,6 +584,26 @@
     <div class="step"><div class="num">4</div><br>ヤフオクに<br>貼り付け</div>
   </div>
 
+  <!-- セラーID設定 -->
+  <div class="api-key-section" id="sellerSection">
+    <div class="api-key-header" id="sellerHeader">
+      <div class="title">🏪 ヤフオクセラーID <span id="sellerStatus"></span></div>
+      <div class="arrow" id="sellerArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="sellerBody">
+      <div class="api-key-note" style="margin-bottom:8px;">JauceバナーとZenmarketバナーのリンク先セラーIDを設定します。</div>
+      <div class="api-key-row">
+        <input type="text" class="api-key-input" id="sellerIdInput"
+               placeholder="例：5jqcTVk8XRdyev4ma8r3m66xeC3yE">
+        <button class="api-key-save" id="sellerSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:10px;">
+        デフォルト（空欄）はRINGO YUKIのIDが使われます。<br>
+        他の人が使う場合はここにそのセラーIDを入力して保存してください。
+      </div>
+    </div>
+  </div>
+
   <!-- 基本レイアウト設定 -->
   <div class="api-key-section" id="layoutSection">
     <div class="api-key-header" id="layoutHeader">
@@ -1104,13 +1124,16 @@
     // Jauce & Zenmarketバナー：横一列に並べる（テーブル使用）
     const jaucePos = localStorage.getItem('yahuoku_jauce_position') || 'bottom';
     const zenPos = localStorage.getItem('yahuoku_zen_position') || 'bottom';
-    const jauceSellerUrl = 'https://www.Jauce.com/user/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+    // セラーIDはlocalStorageから取得、なければデフォルト
+    const customSellerId = localStorage.getItem('yahuoku_seller_id') || '5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+    const jauceSellerUrl = `https://www.Jauce.com/user/${customSellerId}`;
+    const zenSellerUrl = `https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=${customSellerId}`;
     const jauceOn = jaucePos !== 'none';
     const zenOn   = zenPos !== 'none';
 
     let proxyBannerHtml = '';
-    // 海外バナーの共通ヘッダー（区切り線＋案内テキスト）
-    const proxyHeader = '<br><br>\n<hr width="500" align="left">\n<font size="2"><b>▼ For International Customers ▼</b></font><br><br>\n';
+    // 海外バナーの共通ヘッダー（テキスト罫線＋案内テキスト）
+    const proxyHeader = '<br><br>\n━━━━━━━━━━━━━━━━━━━━━<br>\n<b>▼ For International Customers ▼</b><br><br>\n';
     if (jauceOn && zenOn) {
       // 両方ON → 横並び（テーブル）
       proxyBannerHtml = proxyHeader +
@@ -1121,7 +1144,7 @@
         '</td>' +
         '<td>&nbsp;&nbsp;</td>' +
         '<td>' +
-        '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
+        `<a href="${zenSellerUrl}" target="_blank">` +
         '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" width="200" alt="Buy from Japan with Zenmarket.Jp!"></a><br>' +
         '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp</a></font>' +
         '</td>' +
@@ -1134,7 +1157,7 @@
     } else if (zenOn) {
       // Zenmarketだけ
       proxyBannerHtml = proxyHeader +
-        '<a href="https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=5jqcTVk8XRdyev4ma8r3m66xeC3yE" target="_blank">' +
+        `<a href="${zenSellerUrl}" target="_blank">` +
         '<img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" width="250" alt="Buy from Japan with Zenmarket.Jp!"></a><br>' +
         '<font size="2"><a href="https://zenmarket.jp/" target="_blank">Zenmarket.jp - buying service from Japanese online stores</a> recommended by seller</font>';
     }
@@ -1476,6 +1499,43 @@
   document.getElementById('zenHeader').addEventListener('click', () => {
     document.getElementById('zenBody').classList.toggle('show');
     document.getElementById('zenArrow').classList.toggle('open');
+  });
+
+  // ==============================================================
+  // セラーID設定：localStorage記憶
+  // ==============================================================
+  const SELLER_ID_KEY = 'yahuoku_seller_id';
+  const DEFAULT_SELLER_ID = '5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+
+  function loadSellerSettings() {
+    const saved = localStorage.getItem(SELLER_ID_KEY);
+    const el = document.getElementById('sellerStatus');
+    if (saved && saved !== DEFAULT_SELLER_ID) {
+      el.className = 'api-key-ok';
+      el.textContent = `✓ 変更済（...${saved.slice(-6)}）`;
+    } else {
+      el.className = 'api-key-ok';
+      el.textContent = '✓ RINGO YUKI（デフォルト）';
+    }
+  }
+  loadSellerSettings();
+
+  document.getElementById('sellerSave').addEventListener('click', () => {
+    const val = document.getElementById('sellerIdInput').value.trim();
+    if (val) {
+      localStorage.setItem(SELLER_ID_KEY, val);
+    } else {
+      localStorage.removeItem(SELLER_ID_KEY);
+    }
+    document.getElementById('sellerIdInput').value = '';
+    loadSellerSettings();
+    document.getElementById('sellerBody').classList.remove('show');
+    document.getElementById('sellerArrow').classList.remove('open');
+  });
+
+  document.getElementById('sellerHeader').addEventListener('click', () => {
+    document.getElementById('sellerBody').classList.toggle('show');
+    document.getElementById('sellerArrow').classList.toggle('open');
   });
 
   // コピー
