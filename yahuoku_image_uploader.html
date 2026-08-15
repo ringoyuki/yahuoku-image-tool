@@ -584,27 +584,113 @@
     <div class="step"><div class="num">4</div><br>ヤフオクに<br>貼り付け</div>
   </div>
 
-  <!-- セラーID設定 -->
-  <div class="api-key-section" id="sellerSection">
-    <div class="api-key-header" id="sellerHeader">
-      <div class="title">🏪 ヤフオクセラーID <span id="sellerStatus"></span></div>
-      <div class="arrow" id="sellerArrow">▼</div>
+
+  <!-- ショップリンク設定 -->
+  <div class="api-key-section" id="templateSection">
+    <div class="api-key-header" id="templateHeader">
+      <div class="title">🔗 ショップリンクの設定 <span id="templateStatus"></span></div>
+      <div class="arrow" id="templateArrow">▼</div>
     </div>
-    <div class="api-key-body" id="sellerBody">
-      <div class="api-key-note" style="margin-bottom:8px;">JauceバナーとZenmarketバナーのリンク先セラーIDを設定します。</div>
-      <div class="api-key-row">
-        <input type="text" class="api-key-input" id="sellerIdInput"
-               placeholder="例：5jqcTVk8XRdyev4ma8r3m66xeC3yE">
-        <button class="api-key-save" id="sellerSave">✅ 保存</button>
+    <div class="api-key-body" id="templateBody">
+      <div class="api-key-note" style="margin-bottom:14px;">
+        出品一覧などへのリンクを商品説明の上・下・上下に自動挿入できます。
       </div>
-      <div class="api-key-note" style="margin-top:10px;">
-        デフォルト（空欄）はRINGO YUKIのIDが使われます。<br>
-        他の人が使う場合はここにそのセラーIDを入力して保存してください。
+
+      <div class="api-key-note" style="margin-bottom:6px;">📝 表示するリンク文字</div>
+      <input type="text" id="linkText" class="api-key-input" style="width:100%;"
+        placeholder="例：→RINGO YUKI出品一覧←">
+
+      <div class="api-key-note" style="margin:12px 0 6px;">🔗 リンク先URL（セラーIDをここから自動取得）</div>
+      <input type="text" id="linkUrl" class="api-key-input" style="width:100%;"
+        placeholder="https://auctions.yahoo.co.jp/seller/XXXX">
+
+      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示位置</div>
+      <div class="pos-selector" id="linkPosSelector">
+        <button class="pos-btn" data-pos="top">上のみ</button>
+        <button class="pos-btn active" data-pos="both">上下両方</button>
+        <button class="pos-btn" data-pos="bottom">下のみ</button>
+        <button class="pos-btn" data-pos="none">表示しない</button>
+      </div>
+
+      <!-- 海外バイヤー向けバナー -->
+      <div style="border-top:1px solid var(--border); margin-top:20px; padding-top:16px;">
+        <div style="font-size:0.82rem; font-weight:700; color:var(--accent2); margin-bottom:4px;">🌍 海外バイヤー向けバナー</div>
+        <div class="api-key-note" style="margin-bottom:14px;">上の「リンク先URL」のセラーIDを自動取得してバナーリンクを自動設定します。</div>
+
+        <div class="toggle-wrap" style="margin-bottom:10px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="http://www.jauce.jp/banner/img/banner_large.png" height="26" style="border-radius:3px; vertical-align:middle;">
+            <span>Jauceバナー</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="jauceToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="toggle-wrap">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" height="26" style="border-radius:3px; vertical-align:middle;">
+            <span>Zenmarketバナー</span>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="zenToggle" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <button class="api-key-save" id="templateSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        保存するとこのブラウザに記憶されます。次回から自動で入ります。
       </div>
     </div>
   </div>
 
-  <!-- 基本レイアウト設定 -->
+  <!-- バナー設定 -->
+  <div class="api-key-section" id="bannerSection">
+    <div class="api-key-header" id="bannerHeader">
+      <div class="title">🎦 マイ・オークションバナー <span id="bannerStatus"></span></div>
+      <div class="arrow" id="bannerArrow">▼</div>
+    </div>
+    <div class="api-key-body" id="bannerBody">
+      <!-- バナープレビュー -->
+      <div style="margin-bottom:14px;">
+        <img id="bannerPreviewImg" src="https://s.yimg.jp/images/auct/front/banner.gif" alt="マイ・オークション" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
+      </div>
+      <div class="api-key-note" style="margin-bottom:10px;">クリック先は「ショップリンクの設定」のリンク先URLから自動取得します。</div>
+
+      <!-- 固定化ボタン -->
+      <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:14px; margin-bottom:14px;">
+        <div style="font-size:0.85rem; font-weight:700; color:var(--accent2); margin-bottom:8px;">📌 バナーを固定化（URL変更に影響されないようにimgbbに保存）</div>
+        <div style="font-size:0.78rem; color:var(--muted); margin-bottom:10px;">デスクトップのバナー画像ファイルを選択するだけでimgbbに自動保存します。</div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="file" id="bannerFileInput" accept="image/*" style="display:none;">
+          <button class="api-key-save" id="bannerFixBtn" style="background:linear-gradient(135deg,var(--accent),var(--accent2));">📌 画像を選んで固定化</button>
+          <span id="bannerFixStatus" style="font-size:0.8rem; color:var(--muted);"></span>
+        </div>
+      </div>
+
+      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示位置（デフォルト：下のみ）</div>
+      <div class="pos-selector" id="bannerPosSelector">
+        <button class="pos-btn" data-pos="top">上のみ</button>
+        <button class="pos-btn" data-pos="both">上下両方</button>
+        <button class="pos-btn active" data-pos="bottom">下のみ</button>
+        <button class="pos-btn" data-pos="none">表示しない</button>
+      </div>
+
+      <div style="margin-top:14px;">
+        <button class="api-key-save" id="bannerSave">✅ 保存</button>
+      </div>
+      <div class="api-key-note" style="margin-top:12px;">
+        保官するとこのブラウザに記憶されます。
+      </div>
+    </div>
+  </div>
+
+  <!-- 説明文入力 -->
   <div class="api-key-section" id="layoutSection">
     <div class="api-key-header" id="layoutHeader">
       <div class="title">⚙️ 基本レイアウト設定 <span id="layoutStatus"></span></div>
@@ -745,64 +831,6 @@
 
       <div style="margin-top:14px;">
         <button class="api-key-save" id="bannerSave">✅ 保存</button>
-      </div>
-      <div class="api-key-note" style="margin-top:12px;">
-        保存するとこのブラウザに記憶されます。
-      </div>
-    </div>
-  </div>
-
-  <!-- Jauceバナー設定 -->
-  <div class="api-key-section" id="jauceSection">
-    <div class="api-key-header" id="jauceHeader">
-      <div class="title">🌍 Jauceバナー <span id="jauceStatus"></span></div>
-      <div class="arrow" id="jauceArrow">▼</div>
-    </div>
-    <div class="api-key-body" id="jauceBody">
-      <div style="margin-bottom:14px;">
-        <img src="http://www.jauce.jp/banner/img/banner_large.png" alt="Jauce" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
-      </div>
-      <div class="api-key-note" style="margin-bottom:10px;">
-        海外バイヤー向けのJauceバナーを商品説明の一番下に自動挿入します。
-      </div>
-
-      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示</div>
-      <div class="pos-selector" id="jaucePosSelector">
-        <button class="pos-btn active" data-pos="bottom">ON（下に表示）</button>
-        <button class="pos-btn" data-pos="none">OFF</button>
-      </div>
-
-      <div style="margin-top:14px;">
-        <button class="api-key-save" id="jauceSave">✅ 保存</button>
-      </div>
-      <div class="api-key-note" style="margin-top:12px;">
-        保存するとこのブラウザに記憶されます。
-      </div>
-    </div>
-  </div>
-
-  <!-- Zenmarketバナー設定 -->
-  <div class="api-key-section" id="zenSection">
-    <div class="api-key-header" id="zenHeader">
-      <div class="title">📦 Zenmarketバナー <span id="zenStatus"></span></div>
-      <div class="arrow" id="zenArrow">▼</div>
-    </div>
-    <div class="api-key-body" id="zenBody">
-      <div style="margin-bottom:14px;">
-        <img src="https://zenmarket.jp/img/partnership/yahooauction/ya_en_btn.png" alt="Zenmarket" style="max-width:100%; border:1px solid var(--border); border-radius:4px;">
-      </div>
-      <div class="api-key-note" style="margin-bottom:10px;">
-        海外バイヤー向けのZenmarketバナーを商品説明の一番下に自動挿入します。
-      </div>
-
-      <div class="api-key-note" style="margin:14px 0 8px;">📍 表示</div>
-      <div class="pos-selector" id="zenPosSelector">
-        <button class="pos-btn active" data-pos="bottom">ON（下に表示）</button>
-        <button class="pos-btn" data-pos="none">OFF</button>
-      </div>
-
-      <div style="margin-top:14px;">
-        <button class="api-key-save" id="zenSave">✅ 保存</button>
       </div>
       <div class="api-key-note" style="margin-top:12px;">
         保存するとこのブラウザに記憶されます。
@@ -1110,26 +1138,26 @@
     const shopTop    = (shopLinkHtml && (linkPos === 'top'  || linkPos === 'both')) ? shopLinkHtml + '<br><br>' : '';
     const shopBottom = (shopLinkHtml && (linkPos === 'bottom' || linkPos === 'both')) ? '<br><br>\n' + shopLinkHtml : '';
 
-    // バナー：localStorageから読み込み
+    // ショップリンクURLからセラーIDを自動抽出（全バナーで共通使用）
+    const sellerMatch = linkUrl.match(/\/seller\/([^/?&\s]+)/);
+    const sellerId = sellerMatch ? sellerMatch[1] : '5jqcTVk8XRdyev4ma8r3m66xeC3yE';
+
+    // バナー：localStorageから読み込み（クリック先はショップリンクURLを自動使用）
     const bannerPos    = localStorage.getItem('yahuoku_banner_position') || 'bottom';
-    const bannerUrl    = localStorage.getItem('yahuoku_banner_link_url') || 'https://auctions.yahoo.co.jp/seller/5jqcTVk8XRdyev4ma8r3m66xeC3yE';
     const bannerImgUrl = localStorage.getItem('yahuoku_banner_img_url')  || 'https://s.yimg.jp/images/auct/front/banner.gif';
+    const bannerLinkUrl = linkUrl || `https://auctions.yahoo.co.jp/seller/${sellerId}`;
     let bannerTag = '';
     if (bannerPos !== 'none') {
-      bannerTag = `<a href="${bannerUrl}" target="_blank"><img src="${bannerImgUrl}" alt="\u30de\u30a4\u30fb\u30aa\u30fc\u30af\u30b7\u30e7\u30f3\u3092\u3054\u3089\u3093\u304f\u3060\u3055\u3044" style="max-width:100%;"></a>`;
+      bannerTag = `<a href="${bannerLinkUrl}" target="_blank"><img src="${bannerImgUrl}" alt="\u30de\u30a4\u30fb\u30aa\u30fc\u30af\u30b7\u30e7\u30f3\u3092\u3054\u3089\u3093\u304f\u3060\u3055\u3044" style="max-width:100%;"></a>`;
     }
     const bannerTop    = (bannerTag && (bannerPos === 'top'  || bannerPos === 'both')) ? bannerTag + '<br><br>' : '';
     const bannerBottom = (bannerTag && (bannerPos === 'bottom' || bannerPos === 'both')) ? '<br><br>\n' + bannerTag : '';
 
-    // Jauce & Zenmarketバナー：横一列に並べる（テーブル使用）
-    const jaucePos = localStorage.getItem('yahuoku_jauce_position') || 'bottom';
-    const zenPos = localStorage.getItem('yahuoku_zen_position') || 'bottom';
-    // セラーIDはlocalStorageから取得、なければデフォルト
-    const customSellerId = localStorage.getItem('yahuoku_seller_id') || '5jqcTVk8XRdyev4ma8r3m66xeC3yE';
-    const jauceSellerUrl = `https://www.Jauce.com/user/${customSellerId}`;
-    const zenSellerUrl = `https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=${customSellerId}`;
-    const jauceOn = jaucePos !== 'none';
-    const zenOn   = zenPos !== 'none';
+    // Jauce & Zenmarketバナー：ショップリンクのセラーIDを自動使用
+    const jauceOn = localStorage.getItem('yahuoku_jauce_on') !== 'false';
+    const zenOn   = localStorage.getItem('yahuoku_zen_on')   !== 'false';
+    const jauceSellerUrl = `https://www.Jauce.com/user/${sellerId}`;
+    const zenSellerUrl = `https://zenmarket.jp/en/search.aspx?browse=28&store-28-StoreYahooAuctionSeller=${sellerId}`;
 
     let proxyBannerHtml = '';
     // 海外バナーの共通ヘッダー（テキスト罫線＋案内テキスト）
@@ -1179,7 +1207,65 @@
 
   // APIキー：localStorageから読み込み
   const STORAGE_KEY = 'imgbb_api_key';
-  const apiKeyInput = document.getElementById('apiKey');
+  document.querySelectorAll('#linkPosSelector .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActivePos('linkPosSelector', btn.dataset.pos));
+  });
+  document.querySelectorAll('#bannerPosSelector .pos-btn').forEach(btn => {
+    btn.addEventListener('click', () => setActivePos('bannerPosSelector', btn.dataset.pos));
+  });
+
+  // ==============================================================
+  // ショップリンク設定：localStorage記憶（Jauce/Zenmarketトグルを含む）
+  // ==============================================================
+  const LINK_TEXT_KEY = 'yahuoku_link_text';
+  const LINK_URL_KEY  = 'yahuoku_link_url';
+  const LINK_POS_KEY  = 'yahuoku_link_position';
+
+  function loadLinkSettings() {
+    const text = localStorage.getItem(LINK_TEXT_KEY) || '';
+    const url  = localStorage.getItem(LINK_URL_KEY)  || '';
+    const pos  = localStorage.getItem(LINK_POS_KEY)  || 'both';
+    if (text) document.getElementById('linkText').value = text;
+    if (url)  document.getElementById('linkUrl').value  = url;
+    setActivePos('linkPosSelector', pos);
+    // Jauce/Zenmarketトグル読み込み
+    document.getElementById('jauceToggle').checked = localStorage.getItem('yahuoku_jauce_on') !== 'false';
+    document.getElementById('zenToggle').checked   = localStorage.getItem('yahuoku_zen_on')   !== 'false';
+    updateLinkStatus();
+  }
+
+  function updateLinkStatus() {
+    const pos  = localStorage.getItem(LINK_POS_KEY)  || 'both';
+    const text = localStorage.getItem(LINK_TEXT_KEY) || '';
+    const url  = localStorage.getItem(LINK_URL_KEY)  || '';
+    const el   = document.getElementById('templateStatus');
+    if (pos === 'none' || !text || !url) {
+      el.className = 'api-key-warn'; el.textContent = '(なし)';
+    } else {
+      const label = {top:'上のみ', both:'上下', bottom:'下のみ'}[pos] || pos;
+      el.className = 'api-key-ok'; el.textContent = `✓ 設定済（${label}）`;
+    }
+  }
+  loadLinkSettings();
+
+  document.getElementById('templateSave').addEventListener('click', () => {
+    const text = document.getElementById('linkText').value.trim();
+    const url  = document.getElementById('linkUrl').value.trim();
+    const pos  = document.querySelector('#linkPosSelector .pos-btn.active')?.dataset.pos || 'both';
+    localStorage.setItem(LINK_TEXT_KEY, text);
+    localStorage.setItem(LINK_URL_KEY,  url);
+    localStorage.setItem(LINK_POS_KEY,  pos);
+    localStorage.setItem('yahuoku_jauce_on', document.getElementById('jauceToggle').checked ? 'true' : 'false');
+    localStorage.setItem('yahuoku_zen_on',   document.getElementById('zenToggle').checked   ? 'true' : 'false');
+    updateLinkStatus();
+    document.getElementById('templateBody').classList.remove('show');
+    document.getElementById('templateArrow').classList.remove('open');
+  });
+
+  document.getElementById('templateHeader').addEventListener('click', () => {
+    document.getElementById('templateBody').classList.toggle('show');
+    document.getElementById('templateArrow').classList.toggle('open');
+  });
   const apiKeyStatus = document.getElementById('apiKeyStatus');
   const apiKeySection = document.getElementById('apiKeySection');
 
@@ -1427,115 +1513,6 @@
       statusEl.textContent = '✖ エラー: ' + err.message;
     }
     e.target.value = '';
-  });
-
-  // ==============================================================
-  // Jauceバナー設定：localStorage記憶
-  // ==============================================================
-  const JAUCE_POS_KEY = 'yahuoku_jauce_position';
-  const DEFAULT_JAUCE_POS = 'bottom';
-
-  function loadJauceSettings() {
-    if (localStorage.getItem(JAUCE_POS_KEY) === null) localStorage.setItem(JAUCE_POS_KEY, DEFAULT_JAUCE_POS);
-    setActivePos('jaucePosSelector', localStorage.getItem(JAUCE_POS_KEY));
-    updateJauceStatus();
-  }
-
-  function updateJauceStatus() {
-    const pos = localStorage.getItem(JAUCE_POS_KEY) || 'bottom';
-    const el  = document.getElementById('jauceStatus');
-    if (pos === 'none') {
-      el.className = 'api-key-warn'; el.textContent = '(OFF)';
-    } else {
-      el.className = 'api-key-ok'; el.textContent = '✓ ON（下に表示）';
-    }
-  }
-  loadJauceSettings();
-
-  document.getElementById('jauceSave').addEventListener('click', () => {
-    const pos = document.querySelector('#jaucePosSelector .pos-btn.active')?.dataset.pos || 'bottom';
-    localStorage.setItem(JAUCE_POS_KEY, pos);
-    updateJauceStatus();
-    document.getElementById('jauceBody').classList.remove('show');
-    document.getElementById('jauceArrow').classList.remove('open');
-  });
-
-  document.getElementById('jauceHeader').addEventListener('click', () => {
-    document.getElementById('jauceBody').classList.toggle('show');
-    document.getElementById('jauceArrow').classList.toggle('open');
-  });
-
-  // ==============================================================
-  // Zenmarketバナー設定：localStorage記憶
-  // ==============================================================
-  const ZEN_POS_KEY = 'yahuoku_zen_position';
-  const DEFAULT_ZEN_POS = 'bottom';
-
-  function loadZenSettings() {
-    if (localStorage.getItem(ZEN_POS_KEY) === null) localStorage.setItem(ZEN_POS_KEY, DEFAULT_ZEN_POS);
-    setActivePos('zenPosSelector', localStorage.getItem(ZEN_POS_KEY));
-    updateZenStatus();
-  }
-
-  function updateZenStatus() {
-    const pos = localStorage.getItem(ZEN_POS_KEY) || 'bottom';
-    const el  = document.getElementById('zenStatus');
-    if (pos === 'none') {
-      el.className = 'api-key-warn'; el.textContent = '(OFF)';
-    } else {
-      el.className = 'api-key-ok'; el.textContent = '✓ ON（下に表示）';
-    }
-  }
-  loadZenSettings();
-
-  document.getElementById('zenSave').addEventListener('click', () => {
-    const pos = document.querySelector('#zenPosSelector .pos-btn.active')?.dataset.pos || 'bottom';
-    localStorage.setItem(ZEN_POS_KEY, pos);
-    updateZenStatus();
-    document.getElementById('zenBody').classList.remove('show');
-    document.getElementById('zenArrow').classList.remove('open');
-  });
-
-  document.getElementById('zenHeader').addEventListener('click', () => {
-    document.getElementById('zenBody').classList.toggle('show');
-    document.getElementById('zenArrow').classList.toggle('open');
-  });
-
-  // ==============================================================
-  // セラーID設定：localStorage記憶
-  // ==============================================================
-  const SELLER_ID_KEY = 'yahuoku_seller_id';
-  const DEFAULT_SELLER_ID = '5jqcTVk8XRdyev4ma8r3m66xeC3yE';
-
-  function loadSellerSettings() {
-    const saved = localStorage.getItem(SELLER_ID_KEY);
-    const el = document.getElementById('sellerStatus');
-    if (saved && saved !== DEFAULT_SELLER_ID) {
-      el.className = 'api-key-ok';
-      el.textContent = `✓ 変更済（...${saved.slice(-6)}）`;
-    } else {
-      el.className = 'api-key-ok';
-      el.textContent = '✓ RINGO YUKI（デフォルト）';
-    }
-  }
-  loadSellerSettings();
-
-  document.getElementById('sellerSave').addEventListener('click', () => {
-    const val = document.getElementById('sellerIdInput').value.trim();
-    if (val) {
-      localStorage.setItem(SELLER_ID_KEY, val);
-    } else {
-      localStorage.removeItem(SELLER_ID_KEY);
-    }
-    document.getElementById('sellerIdInput').value = '';
-    loadSellerSettings();
-    document.getElementById('sellerBody').classList.remove('show');
-    document.getElementById('sellerArrow').classList.remove('open');
-  });
-
-  document.getElementById('sellerHeader').addEventListener('click', () => {
-    document.getElementById('sellerBody').classList.toggle('show');
-    document.getElementById('sellerArrow').classList.toggle('open');
   });
 
   // コピー
