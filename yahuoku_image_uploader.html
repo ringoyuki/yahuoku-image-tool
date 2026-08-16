@@ -1149,7 +1149,7 @@
     document.getElementById('zenToggle').checked   = localStorage.getItem('yahuoku_zen_on')   !== 'false';
     // バナートグル読み込み
     document.getElementById('bannerToggle').checked = localStorage.getItem('yahuoku_banner_on') !== 'false';
-    setActivePos('bannerPosSelector', localStorage.getItem(BANNER_POS_KEY) || 'bottom');
+    setActivePos('bannerPosSelector', localStorage.getItem('yahuoku_banner_position') || 'bottom');
     updateLinkStatus();
   }
 
@@ -1177,7 +1177,7 @@
     localStorage.setItem('yahuoku_jauce_on',  document.getElementById('jauceToggle').checked  ? 'true' : 'false');
     localStorage.setItem('yahuoku_zen_on',    document.getElementById('zenToggle').checked    ? 'true' : 'false');
     localStorage.setItem('yahuoku_banner_on', document.getElementById('bannerToggle').checked ? 'true' : 'false');
-    localStorage.setItem(BANNER_POS_KEY, document.querySelector('#bannerPosSelector .pos-btn.active')?.dataset.pos || 'bottom');
+    localStorage.setItem('yahuoku_banner_position', document.querySelector('#bannerPosSelector .pos-btn.active')?.dataset.pos || 'bottom');
     updateLinkStatus();
     document.getElementById('templateBody').classList.remove('show');
     document.getElementById('templateArrow').classList.remove('open');
