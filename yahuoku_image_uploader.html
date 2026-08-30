@@ -1220,6 +1220,7 @@
 
   // 保存ボタン
   document.getElementById('apiKeySave').addEventListener('click', () => {
+    const apiKeyInput = document.getElementById('apiKey');
     const key = apiKeyInput.value.trim();
     if (!key) { alert('APIキーを入力してください'); return; }
     localStorage.setItem(STORAGE_KEY, key);
